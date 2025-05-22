@@ -1,0 +1,27 @@
+{
+    "custom_types": {
+        "EventName": {
+            "kind": "enum", "values": [ "test" ]
+        },
+        "TestEvent": {
+            "kind": "variant",
+            "fields": {
+                "event_name": { "kind": "enum", "optional": false, "meta": { }, "name": "EventName" },
+                "b": { "kind": "string", "optional": false, "meta": { }, "type": "string" }
+            },
+            "interfaces": [ ],
+            "tag": "event_name",
+            "children": { "test": "Test" }
+        },
+        "Test": {
+            "kind": "record",
+            "fields": {
+                "a": { "kind": "bool", "optional": false, "meta": { } }
+            },
+            "parent": "TestEvent",
+            "interfaces": [ ]
+        }
+    },
+    "document_type": "TestEvent",
+    "version": "1.1"
+}

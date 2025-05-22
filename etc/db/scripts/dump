@@ -1,0 +1,27 @@
+#!/bin/sh
+
+set -e
+
+TS=`date +%Y-%m-%d_%H-%M-%S`
+
+(
+  echo "SET session_replication_role = 'replica';"
+
+  pg_dump \
+    --no-sync \
+    --data-only \
+    --inserts \
+    --rows-per-insert=1000000 \
+    --column-inserts \
+    --on-conflict-do-nothing \
+    --no-owner \
+    --no-unlogged-table-data \
+    --schema=lib \
+    --schema=app \
+    --schema=app_priv \
+    --schema=api \
+    --file=- \
+  "${GM_DBURL:-${DATABASE_URL}}" || true
+
+  echo "SET session_replication_role = 'origin';"
+) >backup/${TS}-data.sql

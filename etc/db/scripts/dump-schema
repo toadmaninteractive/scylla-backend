@@ -1,0 +1,20 @@
+#!/bin/sh
+
+set -e
+
+TS=`date +%Y-%m-%d_%H-%M-%S`
+
+(
+  #echo "SET session_replication_role = 'replica';"
+
+  pg_dump \
+    --no-sync \
+    --schema=lib \
+    --schema=app \
+    --schema=app_priv \
+    --schema=api \
+    --file=- \
+  "${GM_DBURL:-${DATABASE_URL}}" || true
+
+  #echo "SET session_replication_role = 'origin';"
+) | pg_format -t -r >backup/${TS}-schema.sql

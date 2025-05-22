@@ -1,0 +1,1126 @@
+{
+    "custom_types": {
+        "EventName": {
+            "kind": "enum",
+            "values": [
+                "session_start",
+                "session_end",
+                "self_update",
+                "install_game",
+                "update_game",
+                "switch_game_branch",
+                "uninstall_game",
+                "start_game",
+                "end_game",
+                "cleanup_game",
+                "jira_issue",
+                "click_app_link",
+                "game_action"
+            ]
+        },
+        "AnalyticsEvent": {
+            "kind": "variant",
+            "fields": {
+                "event_name": {
+                    "kind": "enum",
+                    "optional": false,
+                    "meta": {
+                        
+                    },
+                    "name": "EventName"
+                },
+                "datetime": {
+                    "kind": "string",
+                    "optional": false,
+                    "meta": {
+                        "clickhouse.type": "DateTime",
+                        "timestamp_mode": "s"
+                    },
+                    "multiline": false,
+                    "not_empty": false
+                },
+                "revision": {
+                    "kind": "string",
+                    "optional": false,
+                    "meta": {
+                        
+                    },
+                    "multiline": false,
+                    "not_empty": false
+                },
+                "branch": {
+                    "kind": "string",
+                    "optional": false,
+                    "meta": {
+                        
+                    },
+                    "multiline": false,
+                    "not_empty": false
+                },
+                "username": {
+                    "kind": "string",
+                    "optional": false,
+                    "meta": {
+                        
+                    },
+                    "multiline": false,
+                    "not_empty": false
+                },
+                "installation_id": {
+                    "kind": "string",
+                    "optional": false,
+                    "meta": {
+                        
+                    },
+                    "multiline": false,
+                    "not_empty": false
+                },
+                "session_id": {
+                    "kind": "string",
+                    "optional": false,
+                    "meta": {
+                        
+                    },
+                    "multiline": false,
+                    "not_empty": false
+                },
+                "theme": {
+                    "kind": "string",
+                    "optional": false,
+                    "meta": {
+                        
+                    },
+                    "multiline": false,
+                    "not_empty": false
+                }
+            },
+            "interfaces": [
+                
+            ],
+            "tag": "event_name",
+            "children": {
+                "session_start": "SessionStart",
+                "session_end": "SessionEnd",
+                "self_update": "SelfUpdate",
+                "install_game": "InstallGame",
+                "update_game": "UpdateGame",
+                "switch_game_branch": "SwitchGameBranch",
+                "uninstall_game": "UninstallGame",
+                "start_game": "StartGame",
+                "end_game": "EndGame",
+                "cleanup_game": "CleanupGame",
+                "jira_issue": "JiraIssue",
+                "click_app_link": "ClickAppLink",
+                "game_action": "GameAction"
+            }
+        },
+        "SessionStart": {
+            "kind": "record",
+            "fields": {
+                "default_drive_free_space": {
+                    "kind": "int",
+                    "optional": false,
+                    "meta": {
+                        
+                    },
+                    "type": "uint64"
+                },
+                "total_free_space": {
+                    "kind": "int",
+                    "optional": false,
+                    "meta": {
+                        
+                    },
+                    "type": "uint64"
+                },
+                "is_launch_on_startup": {
+                    "kind": "bool",
+                    "optional": false,
+                    "meta": {
+                        
+                    }
+                },
+                "is_clean_game_after_update": {
+                    "kind": "bool",
+                    "optional": false,
+                    "meta": {
+                        
+                    }
+                }
+            },
+            "parent": "AnalyticsEvent",
+            "interfaces": [
+                
+            ]
+        },
+        "SessionEnd": {
+            "kind": "record",
+            "fields": {
+                "session_time": {
+                    "kind": "int",
+                    "optional": false,
+                    "meta": {
+                        
+                    },
+                    "type": "uint32"
+                }
+            },
+            "parent": "AnalyticsEvent",
+            "interfaces": [
+                
+            ]
+        },
+        "SelfUpdate": {
+            "kind": "record",
+            "fields": {
+                "download_time": {
+                    "kind": "int",
+                    "optional": false,
+                    "help": "Download time. Queue and pause times are not included",
+                    "meta": {
+                        
+                    },
+                    "type": "uint32"
+                },
+                "download_size": {
+                    "kind": "int",
+                    "optional": false,
+                    "meta": {
+                        
+                    },
+                    "type": "uint64"
+                },
+                "downloaded_size": {
+                    "kind": "int",
+                    "optional": false,
+                    "meta": {
+                        
+                    },
+                    "type": "uint64"
+                },
+                "from_revision": {
+                    "kind": "string",
+                    "optional": false,
+                    "meta": {
+                        
+                    },
+                    "multiline": false,
+                    "not_empty": false
+                },
+                "from_branch": {
+                    "kind": "string",
+                    "optional": false,
+                    "meta": {
+                        
+                    },
+                    "multiline": false,
+                    "not_empty": false
+                }
+            },
+            "parent": "AnalyticsEvent",
+            "interfaces": [
+                "IDownloadEvent"
+            ]
+        },
+        "InstallGame": {
+            "kind": "record",
+            "fields": {
+                "integrity_check_time": {
+                    "kind": "int",
+                    "optional": false,
+                    "meta": {
+                        
+                    },
+                    "type": "uint32"
+                },
+                "download_time": {
+                    "kind": "int",
+                    "optional": false,
+                    "help": "Download time. Queue and pause times are not included",
+                    "meta": {
+                        
+                    },
+                    "type": "uint32"
+                },
+                "download_size": {
+                    "kind": "int",
+                    "optional": false,
+                    "meta": {
+                        
+                    },
+                    "type": "uint64"
+                },
+                "downloaded_size": {
+                    "kind": "int",
+                    "optional": false,
+                    "meta": {
+                        
+                    },
+                    "type": "uint64"
+                },
+                "install_time": {
+                    "kind": "int",
+                    "optional": false,
+                    "help": "Install time. Queue and pause times are not included",
+                    "meta": {
+                        
+                    },
+                    "type": "uint32"
+                },
+                "install_size": {
+                    "kind": "int",
+                    "optional": false,
+                    "meta": {
+                        
+                    },
+                    "type": "uint64"
+                },
+                "total_time": {
+                    "kind": "int",
+                    "optional": false,
+                    "help": "Total time. Download, unpack and install processes might run in parallel",
+                    "meta": {
+                        
+                    },
+                    "type": "uint32"
+                },
+                "game_id": {
+                    "kind": "string",
+                    "optional": false,
+                    "meta": {
+                        
+                    },
+                    "multiline": false,
+                    "not_empty": false
+                },
+                "game_revision": {
+                    "kind": "string",
+                    "optional": false,
+                    "meta": {
+                        
+                    },
+                    "multiline": false,
+                    "not_empty": false
+                },
+                "game_branch": {
+                    "kind": "string",
+                    "optional": false,
+                    "meta": {
+                        
+                    },
+                    "multiline": false,
+                    "not_empty": false
+                },
+                "is_success": {
+                    "kind": "bool",
+                    "optional": false,
+                    "meta": {
+                        
+                    }
+                },
+                "is_cancel": {
+                    "kind": "bool",
+                    "optional": false,
+                    "meta": {
+                        
+                    }
+                },
+                "reason": {
+                    "kind": "string",
+                    "optional": false,
+                    "meta": {
+                        
+                    },
+                    "multiline": false,
+                    "not_empty": false,
+                    "low_cardinality": true
+                },
+                "concurrent_installation_number": {
+                    "kind": "int",
+                    "optional": false,
+                    "meta": {
+                        
+                    },
+                    "type": "int32"
+                },
+                "is_optional_files": {
+                    "kind": "bool",
+                    "optional": false,
+                    "meta": {
+                        
+                    }
+                }
+            },
+            "parent": "AnalyticsEvent",
+            "interfaces": [
+                "IIntegrityCheckEvent",
+                "IDownloadEvent",
+                "IInstallEvent",
+                "ILingeringEvent",
+                "IGameEvent",
+                "IResultEvent"
+            ]
+        },
+        "UpdateGame": {
+            "kind": "record",
+            "fields": {
+                "integrity_check_time": {
+                    "kind": "int",
+                    "optional": false,
+                    "meta": {
+                        
+                    },
+                    "type": "uint32"
+                },
+                "download_time": {
+                    "kind": "int",
+                    "optional": false,
+                    "help": "Download time. Queue and pause times are not included",
+                    "meta": {
+                        
+                    },
+                    "type": "uint32"
+                },
+                "download_size": {
+                    "kind": "int",
+                    "optional": false,
+                    "meta": {
+                        
+                    },
+                    "type": "uint64"
+                },
+                "downloaded_size": {
+                    "kind": "int",
+                    "optional": false,
+                    "meta": {
+                        
+                    },
+                    "type": "uint64"
+                },
+                "install_time": {
+                    "kind": "int",
+                    "optional": false,
+                    "help": "Install time. Queue and pause times are not included",
+                    "meta": {
+                        
+                    },
+                    "type": "uint32"
+                },
+                "install_size": {
+                    "kind": "int",
+                    "optional": false,
+                    "meta": {
+                        
+                    },
+                    "type": "uint64"
+                },
+                "total_time": {
+                    "kind": "int",
+                    "optional": false,
+                    "help": "Total time. Download, unpack and install processes might run in parallel",
+                    "meta": {
+                        
+                    },
+                    "type": "uint32"
+                },
+                "game_id": {
+                    "kind": "string",
+                    "optional": false,
+                    "meta": {
+                        
+                    },
+                    "multiline": false,
+                    "not_empty": false
+                },
+                "game_revision": {
+                    "kind": "string",
+                    "optional": false,
+                    "meta": {
+                        
+                    },
+                    "multiline": false,
+                    "not_empty": false
+                },
+                "game_branch": {
+                    "kind": "string",
+                    "optional": false,
+                    "meta": {
+                        
+                    },
+                    "multiline": false,
+                    "not_empty": false
+                },
+                "is_success": {
+                    "kind": "bool",
+                    "optional": false,
+                    "meta": {
+                        
+                    }
+                },
+                "is_cancel": {
+                    "kind": "bool",
+                    "optional": false,
+                    "meta": {
+                        
+                    }
+                },
+                "reason": {
+                    "kind": "string",
+                    "optional": false,
+                    "meta": {
+                        
+                    },
+                    "multiline": false,
+                    "not_empty": false,
+                    "low_cardinality": true
+                },
+                "from_game_revision": {
+                    "kind": "string",
+                    "optional": false,
+                    "meta": {
+                        
+                    },
+                    "multiline": false,
+                    "not_empty": false
+                },
+                "is_auto_update": {
+                    "kind": "bool",
+                    "optional": false,
+                    "meta": {
+                        
+                    }
+                },
+                "is_optional_files": {
+                    "kind": "bool",
+                    "optional": false,
+                    "meta": {
+                        
+                    }
+                }
+            },
+            "parent": "AnalyticsEvent",
+            "interfaces": [
+                "IIntegrityCheckEvent",
+                "IDownloadEvent",
+                "IInstallEvent",
+                "ILingeringEvent",
+                "IGameEvent",
+                "IResultEvent"
+            ]
+        },
+        "SwitchGameBranch": {
+            "kind": "record",
+            "fields": {
+                "integrity_check_time": {
+                    "kind": "int",
+                    "optional": false,
+                    "meta": {
+                        
+                    },
+                    "type": "uint32"
+                },
+                "download_time": {
+                    "kind": "int",
+                    "optional": false,
+                    "help": "Download time. Queue and pause times are not included",
+                    "meta": {
+                        
+                    },
+                    "type": "uint32"
+                },
+                "download_size": {
+                    "kind": "int",
+                    "optional": false,
+                    "meta": {
+                        
+                    },
+                    "type": "uint64"
+                },
+                "downloaded_size": {
+                    "kind": "int",
+                    "optional": false,
+                    "meta": {
+                        
+                    },
+                    "type": "uint64"
+                },
+                "install_time": {
+                    "kind": "int",
+                    "optional": false,
+                    "help": "Install time. Queue and pause times are not included",
+                    "meta": {
+                        
+                    },
+                    "type": "uint32"
+                },
+                "install_size": {
+                    "kind": "int",
+                    "optional": false,
+                    "meta": {
+                        
+                    },
+                    "type": "uint64"
+                },
+                "total_time": {
+                    "kind": "int",
+                    "optional": false,
+                    "help": "Total time. Download, unpack and install processes might run in parallel",
+                    "meta": {
+                        
+                    },
+                    "type": "uint32"
+                },
+                "game_id": {
+                    "kind": "string",
+                    "optional": false,
+                    "meta": {
+                        
+                    },
+                    "multiline": false,
+                    "not_empty": false
+                },
+                "game_revision": {
+                    "kind": "string",
+                    "optional": false,
+                    "meta": {
+                        
+                    },
+                    "multiline": false,
+                    "not_empty": false
+                },
+                "game_branch": {
+                    "kind": "string",
+                    "optional": false,
+                    "meta": {
+                        
+                    },
+                    "multiline": false,
+                    "not_empty": false
+                },
+                "is_success": {
+                    "kind": "bool",
+                    "optional": false,
+                    "meta": {
+                        
+                    }
+                },
+                "is_cancel": {
+                    "kind": "bool",
+                    "optional": false,
+                    "meta": {
+                        
+                    }
+                },
+                "reason": {
+                    "kind": "string",
+                    "optional": false,
+                    "meta": {
+                        
+                    },
+                    "multiline": false,
+                    "not_empty": false,
+                    "low_cardinality": true
+                },
+                "from_game_revision": {
+                    "kind": "string",
+                    "optional": false,
+                    "meta": {
+                        
+                    },
+                    "multiline": false,
+                    "not_empty": false
+                },
+                "from_game_branch": {
+                    "kind": "string",
+                    "optional": false,
+                    "meta": {
+                        
+                    },
+                    "multiline": false,
+                    "not_empty": false
+                }
+            },
+            "parent": "AnalyticsEvent",
+            "interfaces": [
+                "IIntegrityCheckEvent",
+                "IDownloadEvent",
+                "IInstallEvent",
+                "ILingeringEvent",
+                "IGameEvent",
+                "IResultEvent"
+            ]
+        },
+        "UninstallGame": {
+            "kind": "record",
+            "fields": {
+                "total_time": {
+                    "kind": "int",
+                    "optional": false,
+                    "help": "Total time. Download, unpack and install processes might run in parallel",
+                    "meta": {
+                        
+                    },
+                    "type": "uint32"
+                },
+                "game_id": {
+                    "kind": "string",
+                    "optional": false,
+                    "meta": {
+                        
+                    },
+                    "multiline": false,
+                    "not_empty": false
+                },
+                "game_revision": {
+                    "kind": "string",
+                    "optional": false,
+                    "meta": {
+                        
+                    },
+                    "multiline": false,
+                    "not_empty": false
+                },
+                "game_branch": {
+                    "kind": "string",
+                    "optional": false,
+                    "meta": {
+                        
+                    },
+                    "multiline": false,
+                    "not_empty": false
+                },
+                "is_success": {
+                    "kind": "bool",
+                    "optional": false,
+                    "meta": {
+                        
+                    }
+                },
+                "is_cancel": {
+                    "kind": "bool",
+                    "optional": false,
+                    "meta": {
+                        
+                    }
+                },
+                "reason": {
+                    "kind": "string",
+                    "optional": false,
+                    "meta": {
+                        
+                    },
+                    "multiline": false,
+                    "not_empty": false,
+                    "low_cardinality": true
+                }
+            },
+            "parent": "AnalyticsEvent",
+            "interfaces": [
+                "ILingeringEvent",
+                "IGameEvent",
+                "IResultEvent"
+            ]
+        },
+        "StartGame": {
+            "kind": "record",
+            "fields": {
+                "game_id": {
+                    "kind": "string",
+                    "optional": false,
+                    "meta": {
+                        
+                    },
+                    "multiline": false,
+                    "not_empty": false
+                },
+                "game_revision": {
+                    "kind": "string",
+                    "optional": false,
+                    "meta": {
+                        
+                    },
+                    "multiline": false,
+                    "not_empty": false
+                },
+                "game_branch": {
+                    "kind": "string",
+                    "optional": false,
+                    "meta": {
+                        
+                    },
+                    "multiline": false,
+                    "not_empty": false
+                },
+                "is_success": {
+                    "kind": "bool",
+                    "optional": false,
+                    "meta": {
+                        
+                    }
+                },
+                "is_cancel": {
+                    "kind": "bool",
+                    "optional": false,
+                    "meta": {
+                        
+                    }
+                },
+                "reason": {
+                    "kind": "string",
+                    "optional": false,
+                    "meta": {
+                        
+                    },
+                    "multiline": false,
+                    "not_empty": false,
+                    "low_cardinality": true
+                },
+                "concurrent_launch_number": {
+                    "kind": "int",
+                    "optional": false,
+                    "meta": {
+                        
+                    },
+                    "type": "int32"
+                },
+                "has_launch_options": {
+                    "kind": "bool",
+                    "optional": false,
+                    "meta": {
+                        
+                    }
+                }
+            },
+            "parent": "AnalyticsEvent",
+            "interfaces": [
+                "IGameEvent",
+                "IResultEvent"
+            ]
+        },
+        "EndGame": {
+            "kind": "record",
+            "fields": {
+                "game_id": {
+                    "kind": "string",
+                    "optional": false,
+                    "meta": {
+                        
+                    },
+                    "multiline": false,
+                    "not_empty": false
+                },
+                "game_revision": {
+                    "kind": "string",
+                    "optional": false,
+                    "meta": {
+                        
+                    },
+                    "multiline": false,
+                    "not_empty": false
+                },
+                "game_branch": {
+                    "kind": "string",
+                    "optional": false,
+                    "meta": {
+                        
+                    },
+                    "multiline": false,
+                    "not_empty": false
+                },
+                "is_success": {
+                    "kind": "bool",
+                    "optional": false,
+                    "meta": {
+                        
+                    }
+                },
+                "is_cancel": {
+                    "kind": "bool",
+                    "optional": false,
+                    "meta": {
+                        
+                    }
+                },
+                "reason": {
+                    "kind": "string",
+                    "optional": false,
+                    "meta": {
+                        
+                    },
+                    "multiline": false,
+                    "not_empty": false,
+                    "low_cardinality": true
+                },
+                "play_time": {
+                    "kind": "int",
+                    "optional": false,
+                    "meta": {
+                        
+                    },
+                    "type": "uint32"
+                },
+                "log_size": {
+                    "kind": "int",
+                    "optional": false,
+                    "help": "Log file size prior to archiving",
+                    "meta": {
+                        
+                    },
+                    "type": "uint64"
+                },
+                "crash_size": {
+                    "kind": "int",
+                    "optional": false,
+                    "help": "Crash log file size prior to archiving",
+                    "meta": {
+                        
+                    },
+                    "type": "uint64"
+                }
+            },
+            "parent": "AnalyticsEvent",
+            "interfaces": [
+                "IGameEvent",
+                "IResultEvent"
+            ]
+        },
+        "CleanupGame": {
+            "kind": "record",
+            "fields": {
+                "integrity_check_time": {
+                    "kind": "int",
+                    "optional": false,
+                    "meta": {
+                        
+                    },
+                    "type": "uint32"
+                },
+                "total_time": {
+                    "kind": "int",
+                    "optional": false,
+                    "help": "Total time. Download, unpack and install processes might run in parallel",
+                    "meta": {
+                        
+                    },
+                    "type": "uint32"
+                },
+                "game_id": {
+                    "kind": "string",
+                    "optional": false,
+                    "meta": {
+                        
+                    },
+                    "multiline": false,
+                    "not_empty": false
+                },
+                "game_revision": {
+                    "kind": "string",
+                    "optional": false,
+                    "meta": {
+                        
+                    },
+                    "multiline": false,
+                    "not_empty": false
+                },
+                "game_branch": {
+                    "kind": "string",
+                    "optional": false,
+                    "meta": {
+                        
+                    },
+                    "multiline": false,
+                    "not_empty": false
+                },
+                "is_success": {
+                    "kind": "bool",
+                    "optional": false,
+                    "meta": {
+                        
+                    }
+                },
+                "is_cancel": {
+                    "kind": "bool",
+                    "optional": false,
+                    "meta": {
+                        
+                    }
+                },
+                "reason": {
+                    "kind": "string",
+                    "optional": false,
+                    "meta": {
+                        
+                    },
+                    "multiline": false,
+                    "not_empty": false,
+                    "low_cardinality": true
+                },
+                "is_repair_redist": {
+                    "kind": "bool",
+                    "optional": false,
+                    "meta": {
+                        
+                    }
+                },
+                "is_clean_user_config": {
+                    "kind": "bool",
+                    "optional": false,
+                    "meta": {
+                        
+                    }
+                },
+                "is_clean_temp_files": {
+                    "kind": "bool",
+                    "optional": false,
+                    "meta": {
+                        
+                    }
+                },
+                "cleaned_size": {
+                    "kind": "int",
+                    "optional": false,
+                    "meta": {
+                        
+                    },
+                    "type": "uint64"
+                }
+            },
+            "parent": "AnalyticsEvent",
+            "interfaces": [
+                "IIntegrityCheckEvent",
+                "ILingeringEvent",
+                "IGameEvent",
+                "IResultEvent"
+            ]
+        },
+        "JiraIssue": {
+            "kind": "record",
+            "fields": {
+                "game_id": {
+                    "kind": "string",
+                    "optional": false,
+                    "meta": {
+                        
+                    },
+                    "multiline": false,
+                    "not_empty": false
+                },
+                "game_revision": {
+                    "kind": "string",
+                    "optional": false,
+                    "meta": {
+                        
+                    },
+                    "multiline": false,
+                    "not_empty": false
+                },
+                "game_branch": {
+                    "kind": "string",
+                    "optional": false,
+                    "meta": {
+                        
+                    },
+                    "multiline": false,
+                    "not_empty": false
+                },
+                "is_success": {
+                    "kind": "bool",
+                    "optional": false,
+                    "meta": {
+                        
+                    }
+                },
+                "is_cancel": {
+                    "kind": "bool",
+                    "optional": false,
+                    "meta": {
+                        
+                    }
+                },
+                "reason": {
+                    "kind": "string",
+                    "optional": false,
+                    "meta": {
+                        
+                    },
+                    "multiline": false,
+                    "not_empty": false,
+                    "low_cardinality": true
+                }
+            },
+            "parent": "AnalyticsEvent",
+            "interfaces": [
+                "IGameEvent",
+                "IResultEvent"
+            ]
+        },
+        "ClickAppLink": {
+            "kind": "record",
+            "fields": {
+                "action": {
+                    "kind": "string",
+                    "optional": false,
+                    "meta": {
+                        
+                    },
+                    "multiline": false,
+                    "not_empty": false,
+                    "low_cardinality": true
+                }
+            },
+            "parent": "AnalyticsEvent",
+            "interfaces": [
+                "IClickEvent"
+            ]
+        },
+        "GameAction": {
+            "kind": "record",
+            "fields": {
+                "action": {
+                    "kind": "string",
+                    "optional": false,
+                    "meta": {
+                        
+                    },
+                    "multiline": false,
+                    "not_empty": false,
+                    "low_cardinality": true
+                },
+                "game_id": {
+                    "kind": "string",
+                    "optional": false,
+                    "meta": {
+                        
+                    },
+                    "multiline": false,
+                    "not_empty": false
+                },
+                "game_revision": {
+                    "kind": "string",
+                    "optional": false,
+                    "meta": {
+                        
+                    },
+                    "multiline": false,
+                    "not_empty": false
+                },
+                "game_branch": {
+                    "kind": "string",
+                    "optional": false,
+                    "meta": {
+                        
+                    },
+                    "multiline": false,
+                    "not_empty": false
+                }
+            },
+            "parent": "AnalyticsEvent",
+            "interfaces": [
+                "IClickEvent",
+                "IGameEvent"
+            ]
+        }
+    },
+    "document_type": "AnalyticsEvent",
+    "version": "1.1"
+}

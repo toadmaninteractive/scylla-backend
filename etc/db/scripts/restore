@@ -1,0 +1,9 @@
+#!/bin/sh
+
+set -e
+
+test $# -lt 1 && echo "Specify database dump file to restrore from" >&2 && exit 2
+
+exec psql -1 \
+    -d "${GM_DBURL:-${DATABASE_URL}}" \
+<"$1"
