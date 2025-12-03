@@ -1,49 +1,51 @@
 import Config
 
+# merge json config
+
+#conf = File.read!(System.get_env("CONFIG_PATH", "config.json")) |> Jason.decode!(keys: :atoms)
+conf = System.get_env("CONFIG_PATH", "config.yaml")
+  |> YamlElixir.read_from_file!()
+  |> Map.get("hermes")
+  |> ConfigProtocol.Config.from_json!()
+
+  # TODO?: is protocol capable of parsing record into keyword list?
+  |> Map.from_struct()
+  |> Enum.map(fn
+    {k, v} when is_struct(v) -> {k, v |> Map.from_struct() |> Map.to_list()}
+    {k, v} when is_map(v) -> {k, v |> Map.to_list()}
+    {k, v} -> {k, v}
+  end)
+  |> update_in([:web, :session], & &1 |> Map.from_struct() |> Map.to_list())
+  |> IO.inspect(label: "CONF")
+
 # database
 
-config :scylla, Repo,
-  username: System.fetch_env!("DB_USER"),
-  password: System.fetch_env!("DB_PASS"),
-  database: System.fetch_env!("DB_NAME"),
-  hostname: System.fetch_env!("DB_HOST")
+config :scylla, Repo, conf[:db]
 
 # web server
 
-config :scylla, :web,
-  ip: System.fetch_env!("BACKEND_IP"),
-  port: System.fetch_env!("BACKEND_PORT") |> String.to_integer,
-  session: [
-    secret: System.fetch_env!("BACKEND_SESSION_SECRET"),
-    encryption_salt: System.fetch_env!("BACKEND_SESSION_ENCRYPTION_SALT"),
-    signing_salt: System.fetch_env!("BACKEND_SESSION_SIGNING_SALT")
-  ],
-  api_keys: System.fetch_env!("BACKEND_API_KEYS") |> String.split(",")
-
-if config_env() != :client do
-  cors_origins = Regex.split(~r{\s*,\s*}, System.fetch_env!("FRONTEND_SERVER_CORS"), trim: true)
-  config :scylla, :web,
-    cors: [
-      fallback_origin: cors_origins |> List.first,
-      allowed_origins: cors_origins
-    ]
-end
+config :scylla, :web, conf[:web]
 
 # ldap
 
 if config_env() != :client do
-  config :exldap, :settings,
-    server: System.fetch_env!("LDAP_HOST"),
-    port: System.fetch_env!("LDAP_PORT") |> String.to_integer,
-    ssl: System.fetch_env!("LDAP_SSL") === "true",
-    user_dn: System.fetch_env!("LDAP_USER"),
-    password: System.fetch_env!("LDAP_PASS"),
-    base: System.fetch_env!("LDAP_BASE")
+  config :exldap, :settings, conf[:ldap]
 end
+
+# scheduler
+
+config :scylla, Scheduler, jobs: (
+  Util.config!(:scylla, [Scheduler, :jobs]) ++
+  Enum.map(conf[:jobs], fn {name, %{schedule: schedule, extended: extended} = job} ->
+    schedule = case extended do
+      # second granularity
+      true -> {:extended, schedule}
+      _ -> schedule
+    end
+    [name: name, schedule: schedule, task: {job.module && String.to_atom("Elixir.#{job.module}") || Scylla, job.function || name, job.arguments}]
+  end)
+)
 
 # clickhouse
 
-config :scylla, :clickhouse,
-  table: System.fetch_env!("CLICKHOUSE_TABLE"),
-  save_events_directory: System.fetch_env!("CLICKHOUSE_SAVE_EVENTS_DIR"),
-  transient_error_codes: System.fetch_env!("CLICKHOUSE_TRANSIENT_ERROR_CODES") |> String.split(",", trim: true) |> Enum.map(&String.to_integer/1)
+config :scylla, :clickhouse, conf[:clickhouse]

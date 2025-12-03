@@ -39,9 +39,9 @@
     // ":DATABASE_VISITOR": "!ENV", // Uses process.env.DATABASE_VISITOR
     // ":DB_NAME": "!ENV",  // use :DATABASE_NAME
     // ":DB_USER": "!ENV",  // :DATABASE_OWNER
-    ":DB_PASS": "!ENV",
-    ":JWT_AUD": "!ENV",
-    ":JWT_SECRET": "!ENV",
+    //":DB_PASS": "!ENV",
+    //":JWT_AUD": "!ENV",
+    //":JWT_SECRET": "!ENV",
     ":ROLE_API": "!ENV",
     ":ROLE_API_PASS": "!ENV",
     ":ROLE_ANON": "!ENV",
@@ -52,7 +52,7 @@
     ":VIRT_MONEY": "int",
     ":MONEY": "int",
     //
-    ":CLICKHOUSE_TABLE": "!ENV",
+    ":CLICKHOUSE_TABLE": "analytics_events",
   },
 
   /*

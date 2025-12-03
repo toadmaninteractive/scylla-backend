@@ -50,10 +50,14 @@ defmodule Util do
   end
 
   def config(app, [key | path], default \\ nil) do
-    case Enum.reduce(path, Application.get_env(app, key), fn step, acc -> acc[step] end) do
-      nil -> default
-      value -> value
-    end
+    Enum.reduce(path, Application.get_env(app, key), fn step, acc -> acc[step] end) || default
+  end
+
+  def config!(app, [key | path]) do
+    path |> Enum.reduce(Application.fetch_env!(app, key), fn
+      step, acc when is_struct(acc) -> Map.fetch!(acc, step)
+      step, acc -> Access.fetch!(acc, step)
+    end)
   end
 
   # ----------------------------------------------------------------------------

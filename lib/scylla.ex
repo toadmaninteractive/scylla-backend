@@ -350,7 +350,7 @@ IO.inspect({:mig, migration})
               cond do
                 # do not stop on casting errors
                 String.starts_with?(sql, "INSERT INTO ") ->
-                  Logger.warn("clickhouse: schema update step #{step + 1}/#{steps} failed for project code=#{project_code}", data: %{database: database, sql: sql, exception: e}, domain: [:clickhouse])
+                  Logger.warning("clickhouse: schema update step #{step + 1}/#{steps} failed for project code=#{project_code}", data: %{database: database, sql: sql, exception: e}, domain: [:clickhouse])
                   false
                 # stop on table alteration errors
                 true ->
@@ -445,7 +445,7 @@ IO.inspect({:reo, actions})
         e in ClickhouseError ->
           filename = "#{project_code}-#{Ecto.UUID.generate()}"
           if e.code == 0 or e.code in Util.config(:scylla, [:clickhouse, :transient_error_codes], []) do
-            Logger.warn("clickhouse: transient error while inserting events for project=#{project_code}", data: %{exception: e}, domain: [:clickhouse])
+            Logger.warning("clickhouse: transient error while inserting events for project=#{project_code}", data: %{exception: e}, domain: [:clickhouse])
             save_events_for_retry!(filename, clickhouse_instance_id, database, sql, data, e)
             Logger.info("clickhouse: saved parsed events to file new/#{filename} for later retry", data: %{filename: filename}, domain: [:clickhouse])
             :ok
@@ -494,7 +494,7 @@ IO.inspect({:reo, actions})
         e in ClickhouseError ->
           filename = "#{project_code}-#{Ecto.UUID.generate()}"
           if e.code == 0 or e.code in Util.config(:scylla, [:clickhouse, :transient_error_codes], []) do
-            Logger.warn("clickhouse: transient error while inserting events for project=#{project_code}", data: %{exception: e}, domain: [:clickhouse])
+            Logger.warning("clickhouse: transient error while inserting events for project=#{project_code}", data: %{exception: e}, domain: [:clickhouse])
             save_events_for_retry!(filename, clickhouse_instance_id, database, sql, data, e)
             Logger.info("clickhouse: saved parsed events to file new/#{filename} for later retry", data: %{filename: filename}, domain: [:clickhouse])
             :ok
@@ -559,7 +559,7 @@ IO.inspect({:reo, actions})
           try do
             case call_clickhouse!(String.to_integer(clickhouse_instance_id), data, database, sql) do
               "" ->
-                Logger.warn("clickhouse: finally inserted saved parsed events from file new/#{filename}", data: %{filename: filename}, domain: [:clickhouse])
+                Logger.warning("clickhouse: finally inserted saved parsed events from file new/#{filename}", data: %{filename: filename}, domain: [:clickhouse])
                 File.rm!(cur_filename)
                 {filename, :ok}
               message ->
@@ -568,7 +568,7 @@ IO.inspect({:reo, actions})
           rescue
             e in ClickhouseError ->
               if e.code == 0 or e.code in Util.config(:scylla, [:clickhouse, :transient_error_codes], []) do
-                Logger.warn("clickhouse: transient error while inserting saved parsed events from file cur/#{filename}", data: %{filename: filename, exception: e}, domain: [:clickhouse])
+                Logger.warning("clickhouse: transient error while inserting saved parsed events from file cur/#{filename}", data: %{filename: filename, exception: e}, domain: [:clickhouse])
                 File.rename!(cur_filename, new_filename)
                 Logger.info("clickhouse: put saved parsed events from file cur/#{filename} back to file new/#{filename} for later retry", data: %{filename: filename}, domain: [:clickhouse])
                 {filename, :repeat}

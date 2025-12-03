@@ -5,7 +5,7 @@ defmodule Scylla.MixProject do
     [
       app: :scylla,
       version: "0.1.0",
-      elixir: "~> 1.12",
+      elixir: "~> 1.18",
       start_permanent: Mix.env() == :prod or Mix.env() == :client,
       aliases: aliases(),
       deps: deps(),
@@ -29,16 +29,17 @@ defmodule Scylla.MixProject do
   # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
-      {:jason, "~> 1.0"},
-      {:plug_cowboy, "~> 2.0"},
+      {:jason, "~> 1.4"},
+      {:bandit, "~> 1.8"},
       {:ayesql, "~> 1.1.0"},
-      {:ecto, "~> 3.7.2"},
-      {:ecto_sql, "~> 3.7.2"},
-      {:postgrex, "0.15.13"},
-      {:httpoison, "~> 1.8"},
-      {:quantum, "~> 3.0"},
+      {:ecto, "~> 3.13"},
+      {:ecto_sql, "~> 3.13"},
+      {:postgrex, ">= 0.0.0"},
+      {:httpoison, "~> 2.2"},
+      {:quantum, "~> 3.5"},
       {:logger_file_backend, "~> 0.0.12"},
       {:exldap, "~> 0.6"},
+      {:yaml_elixir, "~> 2.11"},
 
       # {:dep_from_hexpm, "~> 0.3.0"},
       # {:dep_from_git, git: "https://github.com/elixir-lang/my_dep.git", tag: "0.1.0"}
