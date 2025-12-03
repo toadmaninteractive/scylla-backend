@@ -20,7 +20,7 @@ defmodule Web.Server do
   # cors
   plug :cors
   # logger
-  plug :trace, builder_opts()
+  plug :trace, copy_opts_to_assign: [:log]
 
   # session
   plug :put_secret_key_base

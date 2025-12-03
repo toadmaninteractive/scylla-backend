@@ -55,17 +55,13 @@ config :scylla, Scheduler,
   overlap: false,
   jobs: [
     migrate: [schedule: "@reboot", task: {Repo, :migrate, []}],
-    compile_parsers: [schedule: "@reboot", task: {Scylla, :precompile_parsers, []}],
+    precompile_parsers: [schedule: "@reboot", task: {Scylla, :precompile_parsers, []}],
     setup_saved_events: [schedule: "@reboot", task: {Scylla, :setup_saved_events, []}],
-    resend_saved_events: [schedule: {:extended, "*/15"}, task: {Scylla, :resend_saved_events, []}],
   ]
 
 #
 # web server
 #
-
-config :plug_cowboy,
-  log_exceptions_with_status_code: []
 
 config :scylla, :web,
   session: [
@@ -82,6 +78,10 @@ config :scylla, :web,
 #
 # private portion
 #
+
+config :exldap, :settings,
+  sslopts: [verify: :verify_none],
+  search_timeout: 5000
 
 #
 # environment specific config
