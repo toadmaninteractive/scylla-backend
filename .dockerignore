@@ -1,0 +1,14 @@
+# Dirs
+.elixir_ls
+.git
+.vscode
+deps
+
+# Files
+.dockerignore
+.env.sample
+.gitignore
+Dockerfile
+LICENSE
+README.md
+*.cmd
