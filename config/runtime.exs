@@ -5,7 +5,7 @@ import Config
 #conf = File.read!(System.get_env("CONFIG_PATH", "config.json")) |> Jason.decode!(keys: :atoms)
 conf = System.get_env("CONFIG_PATH", "config.yaml")
   |> YamlElixir.read_from_file!()
-  |> Map.get("hermes")
+  |> Map.get("scylla")
   |> ConfigProtocol.Config.from_json!()
 
   # TODO?: is protocol capable of parsing record into keyword list?
