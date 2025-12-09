@@ -167,10 +167,10 @@ defmodule ConfigProtocol do
 
   defmodule Ldap do
 
-    @enforce_keys [:server, :user_dn, :password, :base]
-    defstruct [server: nil, port: 389, ssl: false, user_dn: nil, password: nil, base: nil]
+    @enforce_keys [:server, :user_dn, :password, :base, :attr]
+    defstruct [server: nil, port: 389, ssl: false, user_dn: nil, password: nil, base: nil, attr: nil]
 
-    @type t :: %Ldap{server: String.t(), port: integer, ssl: boolean, user_dn: String.t(), password: String.t(), base: ConfigProtocol.LdapBase.t()}
+    @type t :: %Ldap{server: String.t(), port: integer, ssl: boolean, user_dn: String.t(), password: String.t(), base: ConfigProtocol.LdapBase.t(), attr: ConfigProtocol.LdapAttrs.t()}
 
     @spec from_json!(Igor.Json.json()) :: t()
     def from_json!(json) do
@@ -180,13 +180,15 @@ defmodule ConfigProtocol do
       user_dn = Igor.Json.parse_field!(json, "user_dn", :string)
       password = Igor.Json.parse_field!(json, "password", :string)
       base = Igor.Json.parse_field!(json, "base", {:custom, ConfigProtocol.LdapBase})
+      attr = Igor.Json.parse_field!(json, "attr", {:custom, ConfigProtocol.LdapAttrs})
       %Ldap{
         server: server,
         port: port,
         ssl: ssl,
         user_dn: user_dn,
         password: password,
-        base: base
+        base: base,
+        attr: attr
       }
     end
 
@@ -198,7 +200,8 @@ defmodule ConfigProtocol do
         ssl: ssl,
         user_dn: user_dn,
         password: password,
-        base: base
+        base: base,
+        attr: attr
       } = args
       %{
         "server" => Igor.Json.pack_value(server, :string),
@@ -206,7 +209,8 @@ defmodule ConfigProtocol do
         "ssl" => Igor.Json.pack_value(ssl, :boolean),
         "user_dn" => Igor.Json.pack_value(user_dn, :string),
         "password" => Igor.Json.pack_value(password, :string),
-        "base" => ConfigProtocol.LdapBase.to_json!(base)
+        "base" => ConfigProtocol.LdapBase.to_json!(base),
+        "attr" => ConfigProtocol.LdapAttrs.to_json!(attr)
       }
     end
 
@@ -232,6 +236,64 @@ defmodule ConfigProtocol do
       %{
         "users" => Igor.Json.pack_value(users, :string),
         "groups" => Igor.Json.pack_value(groups, :string)
+      }
+    end
+
+  end
+
+  defmodule LdapAttrs do
+
+    defstruct [class: "objectClass", class_value_user: "person", class_value_group: "group", user_id: "sAMAccountName", user_name: "cn", user_email: "mail", user_office: "o", group_name: "cn", group_members: "member"]
+
+    @type t :: %LdapAttrs{class: String.t(), class_value_user: String.t(), class_value_group: String.t(), user_id: String.t(), user_name: String.t(), user_email: String.t(), user_office: String.t(), group_name: String.t(), group_members: String.t()}
+
+    @spec from_json!(Igor.Json.json()) :: t()
+    def from_json!(json) do
+      class = Igor.Json.parse_field!(json, "class", :string, "objectClass")
+      class_value_user = Igor.Json.parse_field!(json, "class_value_user", :string, "person")
+      class_value_group = Igor.Json.parse_field!(json, "class_value_group", :string, "group")
+      user_id = Igor.Json.parse_field!(json, "user_id", :string, "sAMAccountName")
+      user_name = Igor.Json.parse_field!(json, "user_name", :string, "cn")
+      user_email = Igor.Json.parse_field!(json, "user_email", :string, "mail")
+      user_office = Igor.Json.parse_field!(json, "user_office", :string, "o")
+      group_name = Igor.Json.parse_field!(json, "group_name", :string, "cn")
+      group_members = Igor.Json.parse_field!(json, "group_members", :string, "member")
+      %LdapAttrs{
+        class: class,
+        class_value_user: class_value_user,
+        class_value_group: class_value_group,
+        user_id: user_id,
+        user_name: user_name,
+        user_email: user_email,
+        user_office: user_office,
+        group_name: group_name,
+        group_members: group_members
+      }
+    end
+
+    @spec to_json!(t()) :: Igor.Json.json()
+    def to_json!(args) do
+      %{
+        class: class,
+        class_value_user: class_value_user,
+        class_value_group: class_value_group,
+        user_id: user_id,
+        user_name: user_name,
+        user_email: user_email,
+        user_office: user_office,
+        group_name: group_name,
+        group_members: group_members
+      } = args
+      %{
+        "class" => Igor.Json.pack_value(class, :string),
+        "class_value_user" => Igor.Json.pack_value(class_value_user, :string),
+        "class_value_group" => Igor.Json.pack_value(class_value_group, :string),
+        "user_id" => Igor.Json.pack_value(user_id, :string),
+        "user_name" => Igor.Json.pack_value(user_name, :string),
+        "user_email" => Igor.Json.pack_value(user_email, :string),
+        "user_office" => Igor.Json.pack_value(user_office, :string),
+        "group_name" => Igor.Json.pack_value(group_name, :string),
+        "group_members" => Igor.Json.pack_value(group_members, :string)
       }
     end
 

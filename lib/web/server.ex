@@ -112,13 +112,13 @@ defmodule Web.Server do
   defp cors_origin(conn) do
     origin = to_string(get_req_header(conn, "origin"))
     cors = Util.config(@app, [:web, :cors])
-    case cors[:allowed_origins] do
+    case cors.allowed_origins do
       allowed_origins when is_list(allowed_origins) ->
         case origin in allowed_origins do
           true -> origin
-          false -> cors[:fallback_origin] || origin
+          false -> cors.fallback_origin || origin
         end
-      _ -> cors[:fallback_origin] || origin
+      _ -> cors.fallback_origin || origin
     end
   end
 
