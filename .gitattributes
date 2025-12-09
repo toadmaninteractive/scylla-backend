@@ -1,0 +1,12 @@
+# Set the default behavior, in case people don't have core.autocrlf set
+* text=auto
+
+# EOL: LF
+*.sh text eol=lf
+/etc/db/migrations/**/*.sql text eol=lf
+/etc/db/scripts/* text eol=lf
+/etc/db/.gmrc* text eol=lf
+
+# EOL: CRLF
+*.bat text eol=crlf
+*.cmd text eol=crlf
