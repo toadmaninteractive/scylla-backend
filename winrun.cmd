@@ -2,8 +2,8 @@
 
 setlocal enableextensions enableDelayedExpansion
 
-SET ERLANG_OTP_VERSION=23.3
-SET ELIXIR_VERSION=1.12.3
+set ERLANG_OTP_VERSION=27.0.1
+set ELIXIR_VERSION=1.18.4
 
 SET PATH=C:\Erlang\erl-%ERLANG_OTP_VERSION%\bin;C:\Elixir\%ELIXIR_VERSION%\bin;%PATH%
 set MIX_ENV=prod
