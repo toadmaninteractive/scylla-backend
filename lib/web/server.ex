@@ -24,7 +24,7 @@ defmodule Web.Server do
 
   # session
   plug :put_secret_key_base
-  plug Plug.Session, Util.config(@app, [:web, :session])
+  plug Plug.Session, Util.config!(@app, [:web, :session])
   plug :extract_session
 
   # plug :put_context
