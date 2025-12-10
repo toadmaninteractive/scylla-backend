@@ -66,10 +66,8 @@ config :scylla, Scheduler,
 config :scylla, :web,
   session: [
     store: :cookie,
-    key: "x_scylla_sid",
-    secret: "TODO: place to BACKEND_SESSION_SECRET environment",
-    encryption_salt: "TODO: place to BACKEND_SESSION_ENCRYPTION_SALT environment",
-    signing_salt: "TODO: place to BACKEND_SESSION_SIGNING_SALT environment",
+    key: "hsid",
+    signing_salt: "TODO: specify in runtime config",
     key_length: 64,
     max_age: 365 * 86400,
     log: false
