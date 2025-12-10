@@ -4,11 +4,11 @@ config :logger,
   backends: [:console, {LoggerFileBackend, :warn_log}],
   compile_time_purge_matching: [
     [domain: [:http]],
-    [domain: [:rpc], level_lower_than: :warn],
+    [domain: [:rpc], level_lower_than: :warning],
   ]
 
 config :logger, :console,
-  level: :warn,
+  level: :warning,
   metadata: [:domain, :data, :request_id],
   format: {Logger.Formatter.Vd, :format},
   truncate: :infinity
@@ -16,6 +16,6 @@ config :logger, :console,
 config :logger, :warn_log,
   path: "log/warn.txt",
   rotate: %{max_bytes: 10000000, keep: 10},
-  level: :warn,
+  level: :warning,
   format: {Logger.Formatter.Vd, :format},
   metadata: [:domain, :data, :request_id]
