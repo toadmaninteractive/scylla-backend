@@ -6,10 +6,7 @@ defmodule SampleEvents do
 
   defmodule EventName do
 
-    @type t ::
-      :aa_purchase #
-    | :achievement_progress #
-    | :add_looter #
+    @type t :: :aa_purchase | :achievement_progress | :add_looter
 
     defguard is_event_name(value) when value === :aa_purchase or value === :achievement_progress or value === :add_looter
 

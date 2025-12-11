@@ -378,7 +378,7 @@ defmodule Util.Retry do
       rescue
         e ->
           if e.__struct__ in opts[:exceptions] do
-            {:cont, {:error, {:exception, e.message}}}
+            {:cont, {:error, {:exception, Exception.message(e)}}}
           else
             reraise e, __STACKTRACE__
           end

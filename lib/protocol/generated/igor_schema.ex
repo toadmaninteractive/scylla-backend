@@ -6,24 +6,7 @@ defmodule IgorSchema do
 
   defmodule DescriptorKind do
 
-    @type t ::
-      :bool #
-    | :int #
-    | :float #
-    | :string #
-    | :binary #
-    | :list #
-    | :dict #
-    | :enum #
-    | :record #
-    | :union #
-    | :key #
-    | :localized #
-    | :datetime #
-    | :json #
-    | :custom #
-    | :generic_instance #
-    | :generic_argument #
+    @type t :: :bool | :int | :float | :string | :binary | :list | :dict | :enum | :record | :union | :key | :localized | :datetime | :json | :custom | :generic_instance | :generic_argument
 
     defguard is_descriptor_kind(value) when value === :bool or value === :int or value === :float or value === :string or value === :binary or value === :list or value === :dict or value === :enum or value === :record or value === :union or value === :key or value === :localized or value === :datetime or value === :json or value === :custom or value === :generic_instance or value === :generic_argument
 
@@ -232,15 +215,7 @@ defmodule IgorSchema do
 
   defmodule IntTypeName do
 
-    @type t ::
-      :int8 #
-    | :uint8 #
-    | :int16 #
-    | :uint16 #
-    | :int32 #
-    | :uint32 #
-    | :int64 #
-    | :uint64 #
+    @type t :: :int8 | :uint8 | :int16 | :uint16 | :int32 | :uint32 | :int64 | :uint64
 
     defguard is_int_type_name(value) when value === :int8 or value === :uint8 or value === :int16 or value === :uint16 or value === :int32 or value === :uint32 or value === :int64 or value === :uint64
 
@@ -342,9 +317,7 @@ defmodule IgorSchema do
 
   defmodule FloatTypeName do
 
-    @type t ::
-      :float32 #
-    | :float64 #
+    @type t :: :float32 | :float64
 
     defguard is_float_type_name(value) when value === :float32 or value === :float64
 
@@ -1099,11 +1072,7 @@ defmodule IgorSchema do
 
   defmodule CustomTypeKind do
 
-    @type t ::
-      :record #
-    | :variant #
-    | :enum #
-    | :union #
+    @type t :: :record | :variant | :enum | :union
 
     defguard is_custom_type_kind(value) when value === :record or value === :variant or value === :enum or value === :union
 

@@ -38,7 +38,7 @@ defmodule Web.Router do
         end
         # IO.inspect({:bo!, body})
         {:ok, body, conn}
-      {:error, :too_large, _conn} ->
+      {:error, :too_large} ->
         raise Plug.Parsers.RequestTooLargeError, message: "The request is too large"
       other -> other
     end

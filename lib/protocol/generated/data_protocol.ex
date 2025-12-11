@@ -6,9 +6,7 @@ defmodule DataProtocol do
 
   defmodule OrderDirection do
 
-    @type t ::
-      :asc #
-    | :desc #
+    @type t :: :asc | :desc
 
     defguard is_order_direction(value) when value === :asc or value === :desc
 

@@ -561,8 +561,12 @@ defmodule Igor do
     def pack_value(value, :binary) when is_binary(value), do: Base.encode64(value)
 
     def pack_value(value, :json), do: value
-    def pack_value(list, {:list, type}) when is_list(list), do: for value <- list, do: pack_value(value, type)
-    def pack_value(dict, {:map, key_type, value_type}) when is_map(dict), do: for {key, value} <- dict, into: %{}, do: {pack_key(key, key_type), pack_value(value, value_type)}
+    def pack_value(list, {:list, type}) when is_list(list) do
+      for value <- list, do: pack_value(value, type)
+    end
+    def pack_value(dict, {:map, key_type, value_type}) when is_map(dict) do
+      for {key, value} <- dict, into: %{}, do: {pack_key(key, key_type), pack_value(value, value_type)}
+    end
     def pack_value(dict, {:ordered_map, key_type, value_type}) when is_map(dict) or is_list(dict) or is_struct(dict, Jason.OrderedObject), do: dict |> Enum.map(fn {key, value} -> {pack_key(key, key_type), pack_value(value, value_type)} end) |> Jason.OrderedObject.new()
     def pack_value(nil, {:option, _}), do: nil
     def pack_value(value, {:option, type}), do: pack_value(value, type)
@@ -750,7 +754,9 @@ defmodule Igor do
 
     defp format_query(_name, nil, _type), do: []
     defp format_query(name, value, {:option, type}), do: format_query(name, value, type)
-    defp format_query(name, value, {:list, item_type}) when is_list(value), do: for item <- value, do: {name, format_value(item, item_type)}
+    defp format_query(name, value, {:list, item_type}) when is_list(value) do
+      for item <- value, do: {name, format_value(item, item_type)}
+    end
     defp format_query(name, value, type), do: [ {name, format_value(value, type)} ]
 
     # def parse_query(param, qs, {:option, type}) do
@@ -903,14 +909,14 @@ defmodule Igor do
           Logger.emergency("rpc_exc: #{method}: #{Elixir.Exception.format(:error, e, [])}", data: %{exception: e, stacktrace: stacktrace}, domain: [:rpc])
           %InternalError{}
         # is_map_key(e, :message) and is_binary(e.message) ->
-        #   Logger.warn("rpc_err: #{e.message}", data: %{method: method, exception: e}, domain: [:rpc])
+        #   Logger.warning("rpc_err: #{e.message}", data: %{method: method, exception: e}, domain: [:rpc])
         #   e
         # true ->
-        #   Logger.warn("rpc_err", data: %{method: method, exception: e}, domain: [:rpc])
+        #   Logger.warning("rpc_err", data: %{method: method, exception: e}, domain: [:rpc])
         #   e
         true ->
-          # Logger.warn("rpc_err: #{Elixir.Exception.format(:error, e, [])}", data: %{method: method, exception: e}, domain: [:rpc])
-          Logger.warn("rpc_err: #{method}: #{Elixir.Exception.format(:error, e, [])}", data: %{exception: e}, domain: [:rpc])
+          # Logger.warning("rpc_err: #{Elixir.Exception.format(:error, e, [])}", data: %{method: method, exception: e}, domain: [:rpc])
+          Logger.warning("rpc_err: #{method}: #{Elixir.Exception.format(:error, e, [])}", data: %{exception: e}, domain: [:rpc])
           e
       end
       e = wrap(e)
@@ -949,7 +955,7 @@ defmodule Igor do
 #           Logger.emergency("rpc_exc: #{Elixir.Exception.format(:error, e, [])}", data: %{method: method, exception: e, stacktrace: stacktrace}, domain: [:rpc])
 #           %DataProtocol.InternalServerError{}
 #         is_map_key(e, :message) and is_binary(e.message) ->
-#           Logger.warn("rpc_err: #{e.message}", data: %{method: method, exception: e}, domain: [:rpc])
+#           Logger.warning("rpc_err: #{e.message}", data: %{method: method, exception: e}, domain: [:rpc])
 #           e
 #         true ->
 #           %{error: inspect(e)}

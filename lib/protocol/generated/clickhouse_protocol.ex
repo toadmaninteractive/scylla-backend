@@ -6,32 +6,7 @@ defmodule ClickhouseProtocol do
 
   defmodule DataType do
 
-    @type t ::
-      :int8 #
-    | :int16 #
-    | :int32 #
-    | :int64 #
-    | :uint8 #
-    | :uint16 #
-    | :uint32 #
-    | :uint64 #
-    | :float32 #
-    | :float64 #
-    | :decimal #
-    | :decimal32 #
-    | :decimal64 #
-    | :decimal128 #
-    | :string #
-    | :fixed_string #
-    | :uuid #
-    | :date #
-    | :date_time #
-    | :enum8 #
-    | :enum16 #
-    | :array #
-    | :aggregate_function #
-    | :tuple #
-    | :special #
+    @type t :: :int8 | :int16 | :int32 | :int64 | :uint8 | :uint16 | :uint32 | :uint64 | :float32 | :float64 | :decimal | :decimal32 | :decimal64 | :decimal128 | :string | :fixed_string | :uuid | :date | :date_time | :enum8 | :enum16 | :array | :aggregate_function | :tuple | :special
 
     defguard is_data_type(value) when value === :int8 or value === :int16 or value === :int32 or value === :int64 or value === :uint8 or value === :uint16 or value === :uint32 or value === :uint64 or value === :float32 or value === :float64 or value === :decimal or value === :decimal32 or value === :decimal64 or value === :decimal128 or value === :string or value === :fixed_string or value === :uuid or value === :date or value === :date_time or value === :enum8 or value === :enum16 or value === :array or value === :aggregate_function or value === :tuple or value === :special
 

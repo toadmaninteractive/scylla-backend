@@ -9,6 +9,7 @@ defmodule Scylla.Application do
 
   @impl true
   def start(_type, _args) do
+    LoggerBackends.add({LoggerFileBackend, :error_log}, Util.config!(:logger, [:error_log]))
     children = [
       # Starts a worker by calling: Store.Worker.start_link(arg)
       # {Scylla.Worker, arg}

@@ -53,33 +53,33 @@ defmodule IngestProtocol do
 
   defmodule IngestError do
 
-    @type t ::
-      :invalid_schema #
-    | :invalid_event #
-    | :invalid_event_tag #
-    | :unknown_event_tag #
+    @type t :: :invalid_data | :invalid_schema | :invalid_event | :invalid_event_tag | :unknown_event_tag
 
-    defguard is_ingest_error(value) when value === :invalid_schema or value === :invalid_event or value === :invalid_event_tag or value === :unknown_event_tag
+    defguard is_ingest_error(value) when value === :invalid_data or value === :invalid_schema or value === :invalid_event or value === :invalid_event_tag or value === :unknown_event_tag
 
     @spec from_string!(String.t()) :: t()
+    def from_string!("invalid_data"), do: :invalid_data
     def from_string!("invalid_schema"), do: :invalid_schema
     def from_string!("invalid_event"), do: :invalid_event
     def from_string!("invalid_event_tag"), do: :invalid_event_tag
     def from_string!("unknown_event_tag"), do: :unknown_event_tag
 
     @spec to_string!(t()) :: String.t()
+    def to_string!(:invalid_data), do: "invalid_data"
     def to_string!(:invalid_schema), do: "invalid_schema"
     def to_string!(:invalid_event), do: "invalid_event"
     def to_string!(:invalid_event_tag), do: "invalid_event_tag"
     def to_string!(:unknown_event_tag), do: "unknown_event_tag"
 
     @spec from_json!(String.t()) :: t()
+    def from_json!("invalid_data"), do: :invalid_data
     def from_json!("invalid_schema"), do: :invalid_schema
     def from_json!("invalid_event"), do: :invalid_event
     def from_json!("invalid_event_tag"), do: :invalid_event_tag
     def from_json!("unknown_event_tag"), do: :unknown_event_tag
 
     @spec to_json!(t()) :: String.t()
+    def to_json!(:invalid_data), do: "invalid_data"
     def to_json!(:invalid_schema), do: "invalid_schema"
     def to_json!(:invalid_event), do: "invalid_event"
     def to_json!(:invalid_event_tag), do: "invalid_event_tag"
@@ -89,16 +89,12 @@ defmodule IngestProtocol do
 
   defmodule SchemaError do
 
-    @type t ::
-      :clashing_type #
-    | :unknown_type #
-    | :invalid_name #
-    | :invalid_type_definition #
-    | :update_failed #
+    @type t :: :invalid_data | :clashing_type | :unknown_type | :invalid_name | :invalid_type_definition | :update_failed
 
-    defguard is_schema_error(value) when value === :clashing_type or value === :unknown_type or value === :invalid_name or value === :invalid_type_definition or value === :update_failed
+    defguard is_schema_error(value) when value === :invalid_data or value === :clashing_type or value === :unknown_type or value === :invalid_name or value === :invalid_type_definition or value === :update_failed
 
     @spec from_string!(String.t()) :: t()
+    def from_string!("invalid_data"), do: :invalid_data
     def from_string!("clashing_type"), do: :clashing_type
     def from_string!("unknown_type"), do: :unknown_type
     def from_string!("invalid_name"), do: :invalid_name
@@ -106,6 +102,7 @@ defmodule IngestProtocol do
     def from_string!("update_failed"), do: :update_failed
 
     @spec to_string!(t()) :: String.t()
+    def to_string!(:invalid_data), do: "invalid_data"
     def to_string!(:clashing_type), do: "clashing_type"
     def to_string!(:unknown_type), do: "unknown_type"
     def to_string!(:invalid_name), do: "invalid_name"
@@ -113,6 +110,7 @@ defmodule IngestProtocol do
     def to_string!(:update_failed), do: "update_failed"
 
     @spec from_json!(String.t()) :: t()
+    def from_json!("invalid_data"), do: :invalid_data
     def from_json!("clashing_type"), do: :clashing_type
     def from_json!("unknown_type"), do: :unknown_type
     def from_json!("invalid_name"), do: :invalid_name
@@ -120,6 +118,7 @@ defmodule IngestProtocol do
     def from_json!("update_failed"), do: :update_failed
 
     @spec to_json!(t()) :: String.t()
+    def to_json!(:invalid_data), do: "invalid_data"
     def to_json!(:clashing_type), do: "clashing_type"
     def to_json!(:unknown_type), do: "unknown_type"
     def to_json!(:invalid_name), do: "invalid_name"
@@ -130,8 +129,7 @@ defmodule IngestProtocol do
 
   defmodule SchemaConflictError do
 
-    @type t ::
-      :dangerous_action #
+    @type t :: :dangerous_action
 
     defguard is_schema_conflict_error(value) when value === :dangerous_action
 
