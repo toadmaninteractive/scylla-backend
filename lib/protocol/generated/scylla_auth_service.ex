@@ -51,7 +51,7 @@ defmodule WebProtocol.ScyllaAuthService do
       end
     rescue
       e in DataProtocol.BadRequestError ->
-        Logger.warn("rpc_err: #{resource__}", data: %{exception: e}, domain: [:rpc])
+        Logger.warning("rpc_err: #{resource__}", data: %{exception: e}, domain: [:rpc])
         body = e
           |> Igor.Exception.wrap()
           |> Igor.Json.pack_value({:custom, DataProtocol.BadRequestError, {{:custom, WebProtocol.LoginError}}})

@@ -58,6 +58,11 @@ defmodule WebProtocol.ScyllaManagementService do
   @callback delete_project(TypesProtocol.project_id(), boolean, String.t() | nil, Map.t() | nil) :: any | no_return
 
   @doc """
+  Regenerate project key
+  """
+  @callback regenerate_project_key(TypesProtocol.project_id(), atom, String.t() | nil, DataProtocol.Empty.t(), Map.t() | nil) :: WebProtocol.Project.t() | no_return
+
+  @doc """
   Fetch list of backup fields
   """
   @callback get_backup_fields(TypesProtocol.project_id(), WebProtocol.BackupFieldsOrderBy.t(), DataProtocol.OrderDirection.t(), non_neg_integer, non_neg_integer, String.t() | nil, Map.t() | nil) :: DataProtocol.CollectionSlice.t(String.t()) | no_return
@@ -73,19 +78,14 @@ defmodule WebProtocol.ScyllaManagementService do
   @callback fetch_project_events(TypesProtocol.project_id(), integer, String.t() | nil, Map.t() | nil) :: [Igor.Json.json()] | no_return
 
   @doc """
-  Fetch migrations collection slice
-  """
-  @callback fetch_schema_migrations(TypesProtocol.project_id(), WebProtocol.SchemaMigrationOrderBy.t(), DataProtocol.OrderDirection.t(), non_neg_integer, non_neg_integer, String.t() | nil, Map.t() | nil) :: DataProtocol.CollectionSlice.t(WebProtocol.SchemaMigration.t()) | no_return
-
-  @doc """
   Fetch a migration
   """
   @callback fetch_schema_migration(TypesProtocol.project_id(), integer, String.t() | nil, Map.t() | nil) :: WebProtocol.SchemaMigration.t() | no_return
 
   @doc """
-  Regenerate project key
+  Fetch migrations collection slice
   """
-  @callback regenerate_project_key(TypesProtocol.project_id(), atom, String.t() | nil, DataProtocol.Empty.t(), Map.t() | nil) :: WebProtocol.Project.t() | no_return
+  @callback fetch_schema_migrations(TypesProtocol.project_id(), WebProtocol.SchemaMigrationOrderBy.t(), DataProtocol.OrderDirection.t(), non_neg_integer, non_neg_integer, String.t() | nil, Map.t() | nil) :: DataProtocol.CollectionSlice.t(WebProtocol.SchemaMigration.t()) | no_return
 
   plug :match
   plug :dispatch
@@ -124,7 +124,7 @@ defmodule WebProtocol.ScyllaManagementService do
     resource__ = "WebProtocol.ScyllaManagementService.CreateClickhouseInstance"
     try do
       api_key = Igor.Json.parse_field!(%{"x-api-key" => List.first(get_req_header(conn, "x-api-key"))}, "x-api-key", {:option, :string})
-      if get_req_header(conn, "content-type") != ["application/json"], do: raise Plug.BadRequestError, "The request must have header 'content-type' equal to 'application/json'"
+      if get_req_header(conn, "content-type") != ["application/json"], do: raise(Plug.BadRequestError, "The request must have header 'content-type' equal to 'application/json'")
       {:ok, body, conn} = read_body(conn)
       request_content = body
         |> Igor.Json.decode!()
@@ -144,7 +144,7 @@ defmodule WebProtocol.ScyllaManagementService do
       end
     rescue
       e in DataProtocol.BadRequestError ->
-        Logger.warn("rpc_err: #{resource__}", data: %{exception: e}, domain: [:rpc])
+        Logger.warning("rpc_err: #{resource__}", data: %{exception: e}, domain: [:rpc])
         body = e
           |> Igor.Exception.wrap()
           |> Igor.Json.pack_value({:custom, DataProtocol.BadRequestError, {{:custom, WebProtocol.ClickhouseInstanceError}}})
@@ -192,7 +192,7 @@ defmodule WebProtocol.ScyllaManagementService do
     try do
       id_or_code = Igor.Json.parse_field!(conn.path_params, "id_or_code", {:custom, Scylla.ClickhouseInstanceId})
       api_key = Igor.Json.parse_field!(%{"x-api-key" => List.first(get_req_header(conn, "x-api-key"))}, "x-api-key", {:option, :string})
-      if get_req_header(conn, "content-type") != ["application/json"], do: raise Plug.BadRequestError, "The request must have header 'content-type' equal to 'application/json'"
+      if get_req_header(conn, "content-type") != ["application/json"], do: raise(Plug.BadRequestError, "The request must have header 'content-type' equal to 'application/json'")
       {:ok, body, conn} = read_body(conn)
       request_content = body
         |> Igor.Json.decode!()
@@ -212,7 +212,7 @@ defmodule WebProtocol.ScyllaManagementService do
       end
     rescue
       e in DataProtocol.BadRequestError ->
-        Logger.warn("rpc_err: #{resource__}", data: %{exception: e}, domain: [:rpc])
+        Logger.warning("rpc_err: #{resource__}", data: %{exception: e}, domain: [:rpc])
         body = e
           |> Igor.Exception.wrap()
           |> Igor.Json.pack_value({:custom, DataProtocol.BadRequestError, {{:custom, WebProtocol.ClickhouseInstanceError}}})
@@ -282,7 +282,7 @@ defmodule WebProtocol.ScyllaManagementService do
     try do
       keep_db = Igor.Json.parse_field!(conn.query_params, "keep_db", :boolean, true)
       api_key = Igor.Json.parse_field!(%{"x-api-key" => List.first(get_req_header(conn, "x-api-key"))}, "x-api-key", {:option, :string})
-      if get_req_header(conn, "content-type") != ["application/json"], do: raise Plug.BadRequestError, "The request must have header 'content-type' equal to 'application/json'"
+      if get_req_header(conn, "content-type") != ["application/json"], do: raise(Plug.BadRequestError, "The request must have header 'content-type' equal to 'application/json'")
       {:ok, body, conn} = read_body(conn)
       request_content = body
         |> Igor.Json.decode!()
@@ -302,7 +302,7 @@ defmodule WebProtocol.ScyllaManagementService do
       end
     rescue
       e in DataProtocol.BadRequestError ->
-        Logger.warn("rpc_err: #{resource__}", data: %{exception: e}, domain: [:rpc])
+        Logger.warning("rpc_err: #{resource__}", data: %{exception: e}, domain: [:rpc])
         body = e
           |> Igor.Exception.wrap()
           |> Igor.Json.pack_value({:custom, DataProtocol.BadRequestError, {{:custom, WebProtocol.ProjectError}}})
@@ -351,7 +351,7 @@ defmodule WebProtocol.ScyllaManagementService do
       id_or_code = Igor.Json.parse_field!(conn.path_params, "id_or_code", {:custom, Scylla.ProjectId})
       keep_db = Igor.Json.parse_field!(conn.query_params, "keep_db", :boolean, true)
       api_key = Igor.Json.parse_field!(%{"x-api-key" => List.first(get_req_header(conn, "x-api-key"))}, "x-api-key", {:option, :string})
-      if get_req_header(conn, "content-type") != ["application/json"], do: raise Plug.BadRequestError, "The request must have header 'content-type' equal to 'application/json'"
+      if get_req_header(conn, "content-type") != ["application/json"], do: raise(Plug.BadRequestError, "The request must have header 'content-type' equal to 'application/json'")
       {:ok, body, conn} = read_body(conn)
       request_content = body
         |> Igor.Json.decode!()
@@ -371,7 +371,7 @@ defmodule WebProtocol.ScyllaManagementService do
       end
     rescue
       e in DataProtocol.BadRequestError ->
-        Logger.warn("rpc_err: #{resource__}", data: %{exception: e}, domain: [:rpc])
+        Logger.warning("rpc_err: #{resource__}", data: %{exception: e}, domain: [:rpc])
         body = e
           |> Igor.Exception.wrap()
           |> Igor.Json.pack_value({:custom, DataProtocol.BadRequestError, {{:custom, WebProtocol.ProjectError}}})
@@ -401,6 +401,39 @@ defmodule WebProtocol.ScyllaManagementService do
           Logger.info("rpc_res: #{resource__}", data: %{result: true}, domain: [:rpc])
           conn
             |> send_resp(204, "")
+      end
+    rescue
+      e -> Igor.Exception.handle(e, __STACKTRACE__, conn, resource__)
+    end
+  end
+
+  # ----------------------------------------------------------------------------
+  # Regenerate project key
+  # ----------------------------------------------------------------------------
+
+  put "/projects/:id_or_code/:key/regenerate", [] do
+    resource__ = "WebProtocol.ScyllaManagementService.RegenerateProjectKey"
+    try do
+      id_or_code = Igor.Json.parse_field!(conn.path_params, "id_or_code", {:custom, Scylla.ProjectId})
+      key = Igor.Json.parse_field!(conn.path_params, "key", :atom)
+      api_key = Igor.Json.parse_field!(%{"x-api-key" => List.first(get_req_header(conn, "x-api-key"))}, "x-api-key", {:option, :string})
+      if get_req_header(conn, "content-type") != ["application/json"], do: raise(Plug.BadRequestError, "The request must have header 'content-type' equal to 'application/json'")
+      {:ok, body, conn} = read_body(conn)
+      request_content = body
+        |> Igor.Json.decode!()
+        |> Igor.Json.parse_value!({:custom, DataProtocol.Empty})
+      current_user = api_key && %{role: ~s'scylla_ext', key: api_key} || conn.assigns[:current_user] || raise DataProtocol.UnauthorizedError
+      Logger.info("rpc_req: #{resource__}", data: %{method: "WebProtocol.ScyllaManagementService.Impl.regenerate_project_key", args: [id_or_code: id_or_code, key: key, api_key: api_key, request_content: request_content, current_user: current_user]}, domain: [:rpc])
+      ACL.can!(current_user, resource__)
+      case WebProtocol.ScyllaManagementService.Impl.regenerate_project_key(id_or_code, key, api_key, request_content, current_user) do
+        response_content when is_struct(response_content, WebProtocol.Project) ->
+          Logger.info("rpc_res: #{resource__}", data: %{result: response_content}, domain: [:rpc])
+          body = response_content
+            |> Igor.Json.pack_value({:custom, WebProtocol.Project})
+            |> Igor.Json.encode!()
+          conn
+            |> put_resp_content_type("application/json")
+            |> send_resp(200, body)
       end
     rescue
       e -> Igor.Exception.handle(e, __STACKTRACE__, conn, resource__)
@@ -494,37 +527,6 @@ defmodule WebProtocol.ScyllaManagementService do
   end
 
   # ----------------------------------------------------------------------------
-  # Fetch migrations collection slice
-  # ----------------------------------------------------------------------------
-
-  get "/projects/:id_or_code/migrations", [] do
-    resource__ = "WebProtocol.ScyllaManagementService.FetchSchemaMigrations"
-    try do
-      id_or_code = Igor.Json.parse_field!(conn.path_params, "id_or_code", {:custom, Scylla.ProjectId})
-      order_by = Igor.Json.parse_field!(conn.query_params, "order_by", {:custom, WebProtocol.SchemaMigrationOrderBy}, :created_at)
-      order_dir = Igor.Json.parse_field!(conn.query_params, "order_dir", {:custom, DataProtocol.OrderDirection}, :desc)
-      offset = Igor.Json.parse_field!(conn.query_params, "offset", :uint, 0)
-      limit = Igor.Json.parse_field!(conn.query_params, "limit", :uint, 10)
-      api_key = Igor.Json.parse_field!(%{"x-api-key" => List.first(get_req_header(conn, "x-api-key"))}, "x-api-key", {:option, :string})
-      current_user = api_key && %{role: ~s'scylla_ext', key: api_key} || conn.assigns[:current_user] || raise DataProtocol.UnauthorizedError
-      Logger.info("rpc_req: #{resource__}", data: %{method: "WebProtocol.ScyllaManagementService.Impl.fetch_schema_migrations", args: [id_or_code: id_or_code, order_by: order_by, order_dir: order_dir, offset: offset, limit: limit, api_key: api_key, current_user: current_user]}, domain: [:rpc])
-      ACL.can!(current_user, resource__)
-      case WebProtocol.ScyllaManagementService.Impl.fetch_schema_migrations(id_or_code, order_by, order_dir, offset, limit, api_key, current_user) do
-        response_content ->
-          Logger.info("rpc_res: #{resource__}", data: %{result: response_content}, domain: [:rpc])
-          body = response_content
-            |> Igor.Json.pack_value({:custom, DataProtocol.CollectionSlice, {{:custom, WebProtocol.SchemaMigration}}})
-            |> Igor.Json.encode!()
-          conn
-            |> put_resp_content_type("application/json")
-            |> send_resp(200, body)
-      end
-    rescue
-      e -> Igor.Exception.handle(e, __STACKTRACE__, conn, resource__)
-    end
-  end
-
-  # ----------------------------------------------------------------------------
   # Fetch a migration
   # ----------------------------------------------------------------------------
 
@@ -553,28 +555,26 @@ defmodule WebProtocol.ScyllaManagementService do
   end
 
   # ----------------------------------------------------------------------------
-  # Regenerate project key
+  # Fetch migrations collection slice
   # ----------------------------------------------------------------------------
 
-  put "/projects/:id_or_code/:key/regenerate", [] do
-    resource__ = "WebProtocol.ScyllaManagementService.RegenerateProjectKey"
+  get "/projects/:id_or_code/migrations", [] do
+    resource__ = "WebProtocol.ScyllaManagementService.FetchSchemaMigrations"
     try do
       id_or_code = Igor.Json.parse_field!(conn.path_params, "id_or_code", {:custom, Scylla.ProjectId})
-      key = Igor.Json.parse_field!(conn.path_params, "key", :atom)
+      order_by = Igor.Json.parse_field!(conn.query_params, "order_by", {:custom, WebProtocol.SchemaMigrationOrderBy}, :created_at)
+      order_dir = Igor.Json.parse_field!(conn.query_params, "order_dir", {:custom, DataProtocol.OrderDirection}, :desc)
+      offset = Igor.Json.parse_field!(conn.query_params, "offset", :uint, 0)
+      limit = Igor.Json.parse_field!(conn.query_params, "limit", :uint, 10)
       api_key = Igor.Json.parse_field!(%{"x-api-key" => List.first(get_req_header(conn, "x-api-key"))}, "x-api-key", {:option, :string})
-      if get_req_header(conn, "content-type") != ["application/json"], do: raise Plug.BadRequestError, "The request must have header 'content-type' equal to 'application/json'"
-      {:ok, body, conn} = read_body(conn)
-      request_content = body
-        |> Igor.Json.decode!()
-        |> Igor.Json.parse_value!({:custom, DataProtocol.Empty})
       current_user = api_key && %{role: ~s'scylla_ext', key: api_key} || conn.assigns[:current_user] || raise DataProtocol.UnauthorizedError
-      Logger.info("rpc_req: #{resource__}", data: %{method: "WebProtocol.ScyllaManagementService.Impl.regenerate_project_key", args: [id_or_code: id_or_code, key: key, api_key: api_key, request_content: request_content, current_user: current_user]}, domain: [:rpc])
+      Logger.info("rpc_req: #{resource__}", data: %{method: "WebProtocol.ScyllaManagementService.Impl.fetch_schema_migrations", args: [id_or_code: id_or_code, order_by: order_by, order_dir: order_dir, offset: offset, limit: limit, api_key: api_key, current_user: current_user]}, domain: [:rpc])
       ACL.can!(current_user, resource__)
-      case WebProtocol.ScyllaManagementService.Impl.regenerate_project_key(id_or_code, key, api_key, request_content, current_user) do
-        response_content when is_struct(response_content, WebProtocol.Project) ->
+      case WebProtocol.ScyllaManagementService.Impl.fetch_schema_migrations(id_or_code, order_by, order_dir, offset, limit, api_key, current_user) do
+        response_content ->
           Logger.info("rpc_res: #{resource__}", data: %{result: response_content}, domain: [:rpc])
           body = response_content
-            |> Igor.Json.pack_value({:custom, WebProtocol.Project})
+            |> Igor.Json.pack_value({:custom, DataProtocol.CollectionSlice, {{:custom, WebProtocol.SchemaMigration}}})
             |> Igor.Json.encode!()
           conn
             |> put_resp_content_type("application/json")

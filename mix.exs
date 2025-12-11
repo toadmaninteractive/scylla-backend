@@ -37,6 +37,7 @@ defmodule Scylla.MixProject do
       {:postgrex, ">= 0.0.0"},
       {:httpoison, "~> 2.2"},
       {:quantum, "~> 3.5"},
+      {:logger_backends, "~> 1.0"},
       {:logger_file_backend, "~> 0.0.12"},
       {:exldap, "~> 0.6"},
       {:yaml_elixir, "~> 2.11"},

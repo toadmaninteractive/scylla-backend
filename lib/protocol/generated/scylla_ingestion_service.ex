@@ -34,7 +34,7 @@ defmodule IngestProtocol.ScyllaIngestionService do
     try do
       project_id_or_code = Igor.Json.parse_field!(conn.path_params, "project_id_or_code", {:custom, Scylla.ProjectId})
       api_key = Igor.Json.parse_field!(%{"x-api-key" => List.first(get_req_header(conn, "x-api-key"))}, "x-api-key", {:option, :string})
-      if get_req_header(conn, "content-type") != ["application/json"], do: raise Plug.BadRequestError, "The request must have header 'content-type' equal to 'application/json'"
+      if get_req_header(conn, "content-type") != ["application/json"], do: raise(Plug.BadRequestError, "The request must have header 'content-type' equal to 'application/json'")
       {:ok, body, conn} = Web.Router.read_may_be_compressed_body(conn)
       request_content = body
         |> Igor.Json.decode!()
@@ -54,7 +54,7 @@ defmodule IngestProtocol.ScyllaIngestionService do
       end
     rescue
       e in DataProtocol.BadRequestError ->
-        Logger.warn("rpc_err: #{resource__}", data: %{exception: e}, domain: [:rpc])
+        Logger.warning("rpc_err: #{resource__}", data: %{exception: e}, domain: [:rpc])
         body = e
           |> Igor.Exception.wrap()
           |> Igor.Json.pack_value({:custom, DataProtocol.BadRequestError, {{:custom, IngestProtocol.IngestError}}})
@@ -103,7 +103,7 @@ defmodule IngestProtocol.ScyllaIngestionService do
       project_id_or_code = Igor.Json.parse_field!(conn.path_params, "project_id_or_code", {:custom, Scylla.ProjectId})
       force = Igor.Json.parse_field!(conn.query_params, "force", :boolean, false)
       api_key = Igor.Json.parse_field!(%{"x-api-key" => List.first(get_req_header(conn, "x-api-key"))}, "x-api-key", {:option, :string})
-      if get_req_header(conn, "content-type") != ["application/json"], do: raise Plug.BadRequestError, "The request must have header 'content-type' equal to 'application/json'"
+      if get_req_header(conn, "content-type") != ["application/json"], do: raise(Plug.BadRequestError, "The request must have header 'content-type' equal to 'application/json'")
       {:ok, body, conn} = read_body(conn)
       request_content = body
         |> Igor.Json.decode!(objects: :ordered_objects)
@@ -119,7 +119,7 @@ defmodule IngestProtocol.ScyllaIngestionService do
       end
     rescue
       e in DataProtocol.BadRequestError ->
-        Logger.warn("rpc_err: #{resource__}", data: %{exception: e}, domain: [:rpc])
+        Logger.warning("rpc_err: #{resource__}", data: %{exception: e}, domain: [:rpc])
         body = e
           |> Igor.Exception.wrap()
           |> Igor.Json.pack_value({:custom, DataProtocol.BadRequestError, {{:custom, IngestProtocol.SchemaError}}})
@@ -128,7 +128,7 @@ defmodule IngestProtocol.ScyllaIngestionService do
           |> put_resp_content_type("application/json")
           |> send_resp(400, body)
       e in DataProtocol.ConflictError ->
-        Logger.warn("rpc_err: #{resource__}", data: %{exception: e}, domain: [:rpc])
+        Logger.warning("rpc_err: #{resource__}", data: %{exception: e}, domain: [:rpc])
         body = e
           |> Igor.Exception.wrap()
           |> Igor.Json.pack_value({:custom, DataProtocol.ConflictError, {{:custom, IngestProtocol.SchemaConflictError}}})

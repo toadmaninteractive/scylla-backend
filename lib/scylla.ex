@@ -313,7 +313,7 @@ defmodule Scylla do
           "RENAME TABLE __backup_#{table}_#{migration_index} TO #{table}",
         ] |> List.flatten()
         # require confirmation for dangerous actions
-        if not force?, do: raise DataProtocol.ConflictError, error: :dangerous_action, details: actions
+        if not force?, do: raise(DataProtocol.ConflictError, error: :dangerous_action, details: actions)
         actions
       # table exists -> alter table
       true ->
@@ -323,7 +323,7 @@ defmodule Scylla do
         ] |> List.flatten()
         # require confirmation for dangerous actions
         # NB: do not raise if all DROP COLUMN followed with IF EXISTS (a backup action)
-        if Regex.match?(~r'DROP COLUMN (?!IF EXISTS )', migration) and not force?, do: raise DataProtocol.ConflictError, message: "Potentially destructive action detected. See details. Set 'force' flag to proceed anyway.", error: :dangerous_action, details: actions
+        if Regex.match?(~r'DROP COLUMN (?!IF EXISTS )', migration) and not force?, do: raise(DataProtocol.ConflictError, message: "Potentially destructive action detected. See details. Set 'force' flag to proceed anyway.", error: :dangerous_action, details: actions)
         actions
     end
 
@@ -360,7 +360,7 @@ IO.inspect({:mig, migration})
           end
         end |> Enum.all?(& &1 === true)
     end
-    # unless result, do: raise DataProtocol.BadRequestError, error: :update_failed
+    # unless result, do: raise(DataProtocol.BadRequestError, error: :update_failed)
 
     # store project new schema
     schema_json = schema
@@ -954,7 +954,7 @@ end
   defp validate_against_schema(events, project_code, database) when is_list(events) and is_binary(project_code) and is_binary(database) do
     parser_module_name = "Elixir." <> project_to_parser_module(project_code)
     parser_module = String.to_atom(parser_module_name)
-    unless function_exported?(parser_module, :from_json, 2), do: raise DataProtocol.BadRequestError, error: :invalid_schema
+    unless function_exported?(parser_module, :from_json, 2), do: raise(DataProtocol.BadRequestError, error: :invalid_schema)
     # TODO: customize parser here
     parser_options = []
     apply(parser_module, :from_json, [events, parser_options])
@@ -998,8 +998,8 @@ end
   defp clickhouse_field_type(%IgorSchema.StringDescriptor{}, _types), do: "String"
   defp clickhouse_field_type(%IgorSchema.KeyDescriptor{}, _types), do: "String"
   defp clickhouse_field_type(%IgorSchema.EnumDescriptor{}, _types), do: "LowCardinality(String)"
-  defp clickhouse_field_type(%{type: type}, _types), do: raise DataProtocol.BadRequestError, error: :unknown_type, info: type
-  defp clickhouse_field_type(unknown, _types), do: raise DataProtocol.BadRequestError, error: :invalid_type_definition, details: inspect(unknown)
+  defp clickhouse_field_type(%{type: type}, _types), do: raise(DataProtocol.BadRequestError, error: :unknown_type, info: type)
+  defp clickhouse_field_type(unknown, _types), do: raise(DataProtocol.BadRequestError, error: :invalid_type_definition, details: inspect(unknown))
 
   # ----------------------------------------------------------------------------
   # ----------------------------------------------------------------------------

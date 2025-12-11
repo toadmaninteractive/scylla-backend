@@ -1,0 +1,1073 @@
+{
+  "custom_types": {
+    "AnalyticsEvent": {
+      "children": {
+        "construct": "Construct",
+        "match_create": "MatchCreate",
+        "match_end": "MatchEnd",
+        "match_start": "MatchStart",
+        "objective_capture": "ObjectiveCapture",
+        "objective_statistics": "ObjectiveStatistics",
+        "player_death": "PlayerDeath",
+        "player_join_match": "PlayerJoinMatch",
+        "player_join_team": "PlayerJoinTeam",
+        "player_leave_match": "PlayerLeaveMatch",
+        "player_spawn": "PlayerSpawn",
+        "session_end": "SessionEnd",
+        "session_start": "SessionStart"
+      },
+      "fields": {
+        "account_id": {
+          "kind": "string",
+          "meta": {},
+          "multiline": false,
+          "not_empty": false,
+          "optional": false
+        },
+        "analytics_version": {
+          "default": 3,
+          "kind": "int",
+          "meta": {},
+          "optional": false,
+          "type": "uint16"
+        },
+        "datetime": {
+          "kind": "int",
+          "meta": {
+            "clickhouse.type": "DateTime",
+            "timestamp_mode": "s"
+          },
+          "optional": false,
+          "type": "uint64"
+        },
+        "event_name": {
+          "kind": "enum",
+          "meta": {},
+          "name": "EventName",
+          "optional": false
+        },
+        "session_id": {
+          "kind": "string",
+          "meta": {},
+          "multiline": false,
+          "not_empty": false,
+          "optional": false
+        }
+      },
+      "interfaces": [],
+      "kind": "variant",
+      "tag": "event_name"
+    },
+    "Construct": {
+      "fields": {
+        "construction_id": {
+          "kind": "string",
+          "meta": {},
+          "multiline": false,
+          "not_empty": false,
+          "optional": false
+        },
+        "game_mode": {
+          "kind": "string",
+          "meta": {},
+          "multiline": false,
+          "not_empty": false,
+          "optional": false
+        },
+        "is_bot": {
+          "kind": "int",
+          "meta": {},
+          "optional": false,
+          "type": "uint16"
+        },
+        "map_id": {
+          "kind": "string",
+          "meta": {},
+          "multiline": false,
+          "not_empty": false,
+          "optional": false
+        },
+        "match_id": {
+          "kind": "string",
+          "meta": {},
+          "multiline": false,
+          "not_empty": false,
+          "optional": false
+        },
+        "match_time": {
+          "kind": "int",
+          "meta": {},
+          "optional": false,
+          "type": "uint16"
+        },
+        "match_type": {
+          "kind": "enum",
+          "meta": {},
+          "name": "MatchType",
+          "optional": false
+        },
+        "pos_x": {
+          "kind": "float",
+          "meta": {},
+          "optional": false,
+          "type": "float32"
+        },
+        "pos_y": {
+          "kind": "float",
+          "meta": {},
+          "optional": false,
+          "type": "float32"
+        },
+        "pos_z": {
+          "kind": "float",
+          "meta": {},
+          "optional": false,
+          "type": "float32"
+        },
+        "team": {
+          "kind": "enum",
+          "meta": {},
+          "name": "Team",
+          "optional": false
+        }
+      },
+      "interfaces": [],
+      "kind": "record",
+      "parent": "AnalyticsEvent"
+    },
+    "DeathReason": {
+      "kind": "enum",
+      "values": [
+        "unknown",
+        "kill",
+        "environment",
+        "suicide",
+        "team_switch"
+      ]
+    },
+    "EventName": {
+      "kind": "enum",
+      "values": [
+        "session_start",
+        "session_end",
+        "player_join_match",
+        "player_join_team",
+        "player_spawn",
+        "player_death",
+        "player_leave_match",
+        "match_create",
+        "match_start",
+        "match_end",
+        "objective_capture",
+        "objective_statistics",
+        "construct"
+      ]
+    },
+    "LeaveReason": {
+      "kind": "enum",
+      "values": [
+        "leave",
+        "disconnect"
+      ]
+    },
+    "MatchCreate": {
+      "fields": {
+        "game_mode": {
+          "kind": "string",
+          "meta": {},
+          "multiline": false,
+          "not_empty": false,
+          "optional": false
+        },
+        "map_id": {
+          "kind": "string",
+          "meta": {},
+          "multiline": false,
+          "not_empty": false,
+          "optional": false
+        },
+        "match_id": {
+          "kind": "string",
+          "meta": {},
+          "multiline": false,
+          "not_empty": false,
+          "optional": false
+        },
+        "match_type": {
+          "kind": "enum",
+          "meta": {},
+          "name": "MatchType",
+          "optional": false
+        }
+      },
+      "interfaces": [],
+      "kind": "record",
+      "parent": "AnalyticsEvent"
+    },
+    "MatchEnd": {
+      "fields": {
+        "game_mode": {
+          "kind": "string",
+          "meta": {},
+          "multiline": false,
+          "not_empty": false,
+          "optional": false
+        },
+        "map_id": {
+          "kind": "string",
+          "meta": {},
+          "multiline": false,
+          "not_empty": false,
+          "optional": false
+        },
+        "match_end_cause": {
+          "kind": "enum",
+          "meta": {},
+          "name": "MatchEndCause",
+          "optional": false
+        },
+        "match_id": {
+          "kind": "string",
+          "meta": {},
+          "multiline": false,
+          "not_empty": false,
+          "optional": false
+        },
+        "match_time": {
+          "kind": "int",
+          "meta": {},
+          "optional": false,
+          "type": "uint16"
+        },
+        "match_type": {
+          "kind": "enum",
+          "meta": {},
+          "name": "MatchType",
+          "optional": false
+        },
+        "num_bots_end_nato": {
+          "kind": "int",
+          "meta": {},
+          "optional": false,
+          "type": "uint16"
+        },
+        "num_bots_end_pact": {
+          "kind": "int",
+          "meta": {},
+          "optional": false,
+          "type": "uint16"
+        },
+        "num_bots_peak_nato": {
+          "kind": "int",
+          "meta": {},
+          "optional": false,
+          "type": "uint16"
+        },
+        "num_bots_peak_pact": {
+          "kind": "int",
+          "meta": {},
+          "optional": false,
+          "type": "uint16"
+        },
+        "num_bots_start_nato": {
+          "kind": "int",
+          "meta": {},
+          "optional": false,
+          "type": "uint16"
+        },
+        "num_bots_start_pact": {
+          "kind": "int",
+          "meta": {},
+          "optional": false,
+          "type": "uint16"
+        },
+        "num_players_end_nato": {
+          "kind": "int",
+          "meta": {},
+          "optional": false,
+          "type": "uint16"
+        },
+        "num_players_end_pact": {
+          "kind": "int",
+          "meta": {},
+          "optional": false,
+          "type": "uint16"
+        },
+        "num_players_peak_nato": {
+          "kind": "int",
+          "meta": {},
+          "optional": false,
+          "type": "uint16"
+        },
+        "num_players_peak_pact": {
+          "kind": "int",
+          "meta": {},
+          "optional": false,
+          "type": "uint16"
+        },
+        "num_players_start_nato": {
+          "kind": "int",
+          "meta": {},
+          "optional": false,
+          "type": "uint16"
+        },
+        "num_players_start_pact": {
+          "kind": "int",
+          "meta": {},
+          "optional": false,
+          "type": "uint16"
+        },
+        "num_players_total_nato": {
+          "kind": "int",
+          "meta": {},
+          "optional": false,
+          "type": "uint16"
+        },
+        "num_players_total_pact": {
+          "kind": "int",
+          "meta": {},
+          "optional": false,
+          "type": "uint16"
+        },
+        "objective_captured_nato": {
+          "default": 0,
+          "kind": "int",
+          "meta": {},
+          "optional": false,
+          "type": "uint32"
+        },
+        "objective_captured_pact": {
+          "default": 0,
+          "kind": "int",
+          "meta": {},
+          "optional": false,
+          "type": "uint32"
+        },
+        "objective_total": {
+          "kind": "int",
+          "meta": {},
+          "optional": false,
+          "type": "uint32"
+        },
+        "win_condition": {
+          "kind": "enum",
+          "meta": {},
+          "name": "WinCondition",
+          "optional": false
+        },
+        "winning_team": {
+          "kind": "enum",
+          "meta": {},
+          "name": "Team",
+          "optional": false
+        }
+      },
+      "interfaces": [],
+      "kind": "record",
+      "parent": "AnalyticsEvent"
+    },
+    "MatchEndCause": {
+      "kind": "enum",
+      "values": [
+        "objectives",
+        "reinforcements",
+        "time",
+        "players_left",
+        "disconnect",
+        "leave"
+      ]
+    },
+    "MatchStart": {
+      "fields": {
+        "game_mode": {
+          "kind": "string",
+          "meta": {},
+          "multiline": false,
+          "not_empty": false,
+          "optional": false
+        },
+        "map_id": {
+          "kind": "string",
+          "meta": {},
+          "multiline": false,
+          "not_empty": false,
+          "optional": false
+        },
+        "match_id": {
+          "kind": "string",
+          "meta": {},
+          "multiline": false,
+          "not_empty": false,
+          "optional": false
+        },
+        "match_type": {
+          "kind": "enum",
+          "meta": {},
+          "name": "MatchType",
+          "optional": false
+        }
+      },
+      "interfaces": [],
+      "kind": "record",
+      "parent": "AnalyticsEvent"
+    },
+    "MatchStatus": {
+      "kind": "enum",
+      "values": [
+        "warmup",
+        "progress",
+        "end"
+      ]
+    },
+    "MatchType": {
+      "kind": "enum",
+      "values": [
+        "normal",
+        "play_test",
+        "ai_test"
+      ]
+    },
+    "ObjectiveCapture": {
+      "fields": {
+        "game_mode": {
+          "kind": "string",
+          "meta": {},
+          "multiline": false,
+          "not_empty": false,
+          "optional": false
+        },
+        "map_id": {
+          "kind": "string",
+          "meta": {},
+          "multiline": false,
+          "not_empty": false,
+          "optional": false
+        },
+        "match_id": {
+          "kind": "string",
+          "meta": {},
+          "multiline": false,
+          "not_empty": false,
+          "optional": false
+        },
+        "match_time": {
+          "kind": "int",
+          "meta": {},
+          "optional": false,
+          "type": "uint16"
+        },
+        "match_type": {
+          "kind": "enum",
+          "meta": {},
+          "name": "MatchType",
+          "optional": false
+        },
+        "num_capture": {
+          "kind": "int",
+          "meta": {},
+          "optional": false,
+          "type": "uint16"
+        },
+        "objective_id": {
+          "kind": "string",
+          "meta": {},
+          "multiline": false,
+          "not_empty": false,
+          "optional": false
+        },
+        "objective_name": {
+          "kind": "string",
+          "meta": {},
+          "multiline": false,
+          "not_empty": false,
+          "optional": false
+        },
+        "team": {
+          "kind": "enum",
+          "meta": {},
+          "name": "Team",
+          "optional": false
+        },
+        "time_capture": {
+          "kind": "int",
+          "meta": {},
+          "optional": false,
+          "type": "uint16"
+        }
+      },
+      "interfaces": [],
+      "kind": "record",
+      "parent": "AnalyticsEvent"
+    },
+    "ObjectiveStatistics": {
+      "fields": {
+        "game_mode": {
+          "kind": "string",
+          "meta": {},
+          "multiline": false,
+          "not_empty": false,
+          "optional": false
+        },
+        "map_id": {
+          "kind": "string",
+          "meta": {},
+          "multiline": false,
+          "not_empty": false,
+          "optional": false
+        },
+        "match_id": {
+          "kind": "string",
+          "meta": {},
+          "multiline": false,
+          "not_empty": false,
+          "optional": false
+        },
+        "match_time": {
+          "kind": "int",
+          "meta": {},
+          "optional": false,
+          "type": "uint16"
+        },
+        "match_type": {
+          "kind": "enum",
+          "meta": {},
+          "name": "MatchType",
+          "optional": false
+        },
+        "num_capture": {
+          "kind": "int",
+          "meta": {},
+          "optional": false,
+          "type": "uint16"
+        },
+        "objective_active_nato": {
+          "kind": "int",
+          "meta": {},
+          "optional": false,
+          "type": "uint32"
+        },
+        "objective_active_pact": {
+          "kind": "int",
+          "meta": {},
+          "optional": false,
+          "type": "uint32"
+        },
+        "objective_id": {
+          "kind": "string",
+          "meta": {},
+          "multiline": false,
+          "not_empty": false,
+          "optional": false
+        },
+        "objective_name": {
+          "kind": "string",
+          "meta": {},
+          "multiline": false,
+          "not_empty": false,
+          "optional": false
+        }
+      },
+      "interfaces": [],
+      "kind": "record",
+      "parent": "AnalyticsEvent"
+    },
+    "PlatformId": {
+      "kind": "enum",
+      "values": [
+        "win",
+        "xbox",
+        "ps",
+        "ios"
+      ]
+    },
+    "PlayerDeath": {
+      "fields": {
+        "death_reason": {
+          "kind": "enum",
+          "meta": {},
+          "name": "DeathReason",
+          "optional": false
+        },
+        "game_mode": {
+          "kind": "string",
+          "meta": {},
+          "multiline": false,
+          "not_empty": false,
+          "optional": false
+        },
+        "killer_id": {
+          "default": "Unknown",
+          "kind": "string",
+          "meta": {},
+          "multiline": false,
+          "not_empty": false,
+          "optional": false
+        },
+        "killer_is_bot": {
+          "kind": "int",
+          "meta": {},
+          "optional": false,
+          "type": "uint16"
+        },
+        "killer_pos_x": {
+          "default": 0,
+          "kind": "float",
+          "meta": {},
+          "optional": false,
+          "type": "float32"
+        },
+        "killer_pos_y": {
+          "default": 0,
+          "kind": "float",
+          "meta": {},
+          "optional": false,
+          "type": "float32"
+        },
+        "killer_pos_z": {
+          "default": 0,
+          "kind": "float",
+          "meta": {},
+          "optional": false,
+          "type": "float32"
+        },
+        "killer_team": {
+          "default": "neutral",
+          "kind": "enum",
+          "meta": {},
+          "name": "Team",
+          "optional": false
+        },
+        "map_id": {
+          "kind": "string",
+          "meta": {},
+          "multiline": false,
+          "not_empty": false,
+          "optional": false
+        },
+        "match_id": {
+          "kind": "string",
+          "meta": {},
+          "multiline": false,
+          "not_empty": false,
+          "optional": false
+        },
+        "match_time": {
+          "kind": "int",
+          "meta": {},
+          "optional": false,
+          "type": "uint16"
+        },
+        "match_type": {
+          "kind": "enum",
+          "meta": {},
+          "name": "MatchType",
+          "optional": false
+        },
+        "victim_id": {
+          "default": "Unknown",
+          "kind": "string",
+          "meta": {},
+          "multiline": false,
+          "not_empty": false,
+          "optional": false
+        },
+        "victim_is_bot": {
+          "kind": "int",
+          "meta": {},
+          "optional": false,
+          "type": "uint16"
+        },
+        "victim_life_time": {
+          "kind": "int",
+          "meta": {},
+          "optional": false,
+          "type": "uint16"
+        },
+        "victim_pos_x": {
+          "default": 0,
+          "kind": "float",
+          "meta": {},
+          "optional": false,
+          "type": "float32"
+        },
+        "victim_pos_y": {
+          "default": 0,
+          "kind": "float",
+          "meta": {},
+          "optional": false,
+          "type": "float32"
+        },
+        "victim_pos_z": {
+          "default": 0,
+          "kind": "float",
+          "meta": {},
+          "optional": false,
+          "type": "float32"
+        },
+        "victim_team": {
+          "default": "neutral",
+          "kind": "enum",
+          "meta": {},
+          "name": "Team",
+          "optional": false
+        },
+        "weapon_id": {
+          "default": "Unknown",
+          "kind": "string",
+          "meta": {},
+          "multiline": false,
+          "not_empty": false,
+          "optional": false
+        }
+      },
+      "interfaces": [],
+      "kind": "record",
+      "parent": "AnalyticsEvent"
+    },
+    "PlayerJoinMatch": {
+      "fields": {
+        "game_mode": {
+          "kind": "string",
+          "meta": {},
+          "multiline": false,
+          "not_empty": false,
+          "optional": false
+        },
+        "is_bot": {
+          "kind": "int",
+          "meta": {},
+          "optional": false,
+          "type": "uint16"
+        },
+        "map_id": {
+          "kind": "string",
+          "meta": {},
+          "multiline": false,
+          "not_empty": false,
+          "optional": false
+        },
+        "match_id": {
+          "kind": "string",
+          "meta": {},
+          "multiline": false,
+          "not_empty": false,
+          "optional": false
+        },
+        "match_status": {
+          "kind": "enum",
+          "meta": {},
+          "name": "MatchStatus",
+          "optional": false
+        },
+        "match_time": {
+          "kind": "int",
+          "meta": {},
+          "optional": false,
+          "type": "uint16"
+        },
+        "match_type": {
+          "kind": "enum",
+          "meta": {},
+          "name": "MatchType",
+          "optional": false
+        }
+      },
+      "interfaces": [],
+      "kind": "record",
+      "parent": "AnalyticsEvent"
+    },
+    "PlayerJoinTeam": {
+      "fields": {
+        "game_mode": {
+          "kind": "string",
+          "meta": {},
+          "multiline": false,
+          "not_empty": false,
+          "optional": false
+        },
+        "is_bot": {
+          "kind": "int",
+          "meta": {},
+          "optional": false,
+          "type": "uint16"
+        },
+        "map_id": {
+          "kind": "string",
+          "meta": {},
+          "multiline": false,
+          "not_empty": false,
+          "optional": false
+        },
+        "match_id": {
+          "kind": "string",
+          "meta": {},
+          "multiline": false,
+          "not_empty": false,
+          "optional": false
+        },
+        "match_status": {
+          "kind": "enum",
+          "meta": {},
+          "name": "MatchStatus",
+          "optional": false
+        },
+        "match_time": {
+          "kind": "int",
+          "meta": {},
+          "optional": false,
+          "type": "uint16"
+        },
+        "match_type": {
+          "kind": "enum",
+          "meta": {},
+          "name": "MatchType",
+          "optional": false
+        },
+        "num_join": {
+          "kind": "int",
+          "meta": {},
+          "optional": false,
+          "type": "uint16"
+        },
+        "team": {
+          "kind": "enum",
+          "meta": {},
+          "name": "Team",
+          "optional": false
+        }
+      },
+      "interfaces": [],
+      "kind": "record",
+      "parent": "AnalyticsEvent"
+    },
+    "PlayerLeaveMatch": {
+      "fields": {
+        "game_mode": {
+          "kind": "string",
+          "meta": {},
+          "multiline": false,
+          "not_empty": false,
+          "optional": false
+        },
+        "is_bot": {
+          "kind": "int",
+          "meta": {},
+          "optional": false,
+          "type": "uint16"
+        },
+        "leave_reason": {
+          "kind": "enum",
+          "meta": {},
+          "name": "LeaveReason",
+          "optional": false
+        },
+        "map_id": {
+          "kind": "string",
+          "meta": {},
+          "multiline": false,
+          "not_empty": false,
+          "optional": false
+        },
+        "match_id": {
+          "kind": "string",
+          "meta": {},
+          "multiline": false,
+          "not_empty": false,
+          "optional": false
+        },
+        "match_status": {
+          "kind": "enum",
+          "meta": {},
+          "name": "MatchStatus",
+          "optional": false
+        },
+        "match_time": {
+          "kind": "int",
+          "meta": {},
+          "optional": false,
+          "type": "uint16"
+        },
+        "match_type": {
+          "kind": "enum",
+          "meta": {},
+          "name": "MatchType",
+          "optional": false
+        },
+        "play_time": {
+          "help": "Play time including warm up",
+          "kind": "int",
+          "meta": {},
+          "optional": false,
+          "type": "uint16"
+        },
+        "team": {
+          "kind": "enum",
+          "meta": {},
+          "name": "Team",
+          "optional": false
+        }
+      },
+      "interfaces": [],
+      "kind": "record",
+      "parent": "AnalyticsEvent"
+    },
+    "PlayerSpawn": {
+      "fields": {
+        "game_mode": {
+          "kind": "string",
+          "meta": {},
+          "multiline": false,
+          "not_empty": false,
+          "optional": false
+        },
+        "is_bot": {
+          "kind": "int",
+          "meta": {},
+          "optional": false,
+          "type": "uint16"
+        },
+        "is_squad_leader": {
+          "kind": "int",
+          "meta": {},
+          "optional": false,
+          "type": "uint16"
+        },
+        "map_id": {
+          "kind": "string",
+          "meta": {},
+          "multiline": false,
+          "not_empty": false,
+          "optional": false
+        },
+        "match_id": {
+          "kind": "string",
+          "meta": {},
+          "multiline": false,
+          "not_empty": false,
+          "optional": false
+        },
+        "match_status": {
+          "kind": "enum",
+          "meta": {},
+          "name": "MatchStatus",
+          "optional": false
+        },
+        "match_time": {
+          "kind": "int",
+          "meta": {},
+          "optional": false,
+          "type": "uint16"
+        },
+        "match_type": {
+          "kind": "enum",
+          "meta": {},
+          "name": "MatchType",
+          "optional": false
+        },
+        "num_spawn": {
+          "kind": "int",
+          "meta": {},
+          "optional": false,
+          "type": "uint16"
+        },
+        "pos_x": {
+          "kind": "float",
+          "meta": {},
+          "optional": false,
+          "type": "float32"
+        },
+        "pos_y": {
+          "kind": "float",
+          "meta": {},
+          "optional": false,
+          "type": "float32"
+        },
+        "pos_z": {
+          "kind": "float",
+          "meta": {},
+          "optional": false,
+          "type": "float32"
+        },
+        "role": {
+          "kind": "string",
+          "meta": {},
+          "multiline": false,
+          "not_empty": false,
+          "optional": false
+        }
+      },
+      "interfaces": [],
+      "kind": "record",
+      "parent": "AnalyticsEvent"
+    },
+    "SessionEnd": {
+      "fields": {
+        "time_passed": {
+          "kind": "int",
+          "meta": {},
+          "optional": false,
+          "type": "uint64"
+        }
+      },
+      "interfaces": [],
+      "kind": "record",
+      "parent": "AnalyticsEvent"
+    },
+    "SessionStart": {
+      "fields": {
+        "build_version": {
+          "kind": "string",
+          "meta": {},
+          "multiline": false,
+          "not_empty": false,
+          "optional": false
+        },
+        "platform_id": {
+          "default": "win",
+          "kind": "enum",
+          "meta": {},
+          "name": "PlatformId",
+          "optional": false
+        },
+        "session_number": {
+          "default": 1,
+          "kind": "int",
+          "meta": {},
+          "optional": false,
+          "type": "uint16"
+        }
+      },
+      "interfaces": [],
+      "kind": "record",
+      "parent": "AnalyticsEvent"
+    },
+    "Team": {
+      "kind": "enum",
+      "values": [
+        "nato",
+        "pact",
+        "neutral"
+      ]
+    },
+    "WinCondition": {
+      "kind": "enum",
+      "values": [
+        "killed_opposition",
+        "nato_killed_more_pact",
+        "pact_killed_more_nato",
+        "captured_all_objectives",
+        "captured_more_objectives",
+        "frontline_beaten",
+        "frontline_further",
+        "reached_time_target",
+        "cannot_reach_time_target",
+        "closest_to_time_target",
+        "supremacy_reached_target",
+        "supremacy_closest_to_target",
+        "is_draw"
+      ]
+    }
+  },
+  "document_type": "AnalyticsEvent",
+  "version": "1.1"
+}

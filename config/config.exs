@@ -5,8 +5,6 @@ import Config
 #
 
 config :logger,
-  backends: [:console, {LoggerFileBackend, :error_log}],
-  # backends: [:console, {LoggerFileBackend, :error_log}],
   compile_time_purge_matching: [
     [domain: [:http]],
     # [domain: [:rpc], level_lower_than: :error],

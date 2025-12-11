@@ -57,10 +57,10 @@ defmodule Postgrex.Extensions.UUIDString do
   def encode(_) do
     quote location: :keep, generated: true do
       uuid when is_binary(uuid) and byte_size(uuid) == 16 ->
-        [<<16::int32>> | uuid]
+        [<<16::int32()>> | uuid]
 
       uuid when is_binary(uuid) and byte_size(uuid) == 36 ->
-        [<<16::int32>> | Ecto.UUID.dump!(uuid)]
+        [<<16::int32()>> | Ecto.UUID.dump!(uuid)]
 
       other ->
         raise DBConnection.EncodeError, Postgrex.Utils.encode_msg(other, "a binary of 16 or 36 bytes")
@@ -69,14 +69,14 @@ defmodule Postgrex.Extensions.UUIDString do
 
   def decode(:copy) do
     quote location: :keep do
-      # <<16::int32, uuid::binary-16>> -> :binary.copy(uuid)
-      <<16::int32, uuid::binary-16>> -> Ecto.UUID.cast!(uuid)
+      # <<16::int32(), uuid::binary-16>> -> :binary.copy(uuid)
+      <<16::int32(), uuid::binary-16>> -> Ecto.UUID.cast!(uuid)
     end
   end
 
   def decode(:reference) do
     quote location: :keep do
-      <<16::int32, uuid::binary-16>> -> uuid
+      <<16::int32(), uuid::binary-16>> -> uuid
     end
   end
 end
