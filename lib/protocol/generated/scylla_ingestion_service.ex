@@ -13,11 +13,12 @@ defmodule IngestProtocol.ScyllaIngestionService do
   @callback send_events(TypesProtocol.project_id(), String.t() | nil, IngestProtocol.Envelope.t(), Map.t() | nil) :: IngestProtocol.IngestorResponse.t() | no_return
 
   @doc """
-  Get project schema
-  """
-  @callback get_schema(TypesProtocol.project_id(), String.t() | nil, Map.t() | nil) :: IngestProtocol.OldSchemaResponse.t() | no_return
-
-  @doc """
+  // NB: internal
+  # Get project schema
+  GetSchema => GET /{ProjectId project_id_or_code}/schema
+  ~x-api-key: {?string api_key}
+  ->
+  200: _OldSchemaResponse;
   Update project schema
   """
   @callback update_schema(TypesProtocol.project_id(), boolean, String.t() | nil, IgorSchema.Schema.t(), Map.t() | nil) :: any | no_return
@@ -41,7 +42,7 @@ defmodule IngestProtocol.ScyllaIngestionService do
         |> Igor.Json.parse_value!({:custom, IngestProtocol.Envelope})
       current_user = api_key && %{role: ~s'scylla_ext', key: api_key} || conn.assigns[:current_user] || raise DataProtocol.UnauthorizedError
       Logger.info("rpc_req: #{resource__}", data: %{method: "IngestProtocol.ScyllaIngestionService.Impl.send_events", args: [project_id_or_code: project_id_or_code, api_key: api_key, request_content: request_content, current_user: current_user]}, domain: [:rpc])
-      ACL.can!(current_user, resource__, Scylla.get_project!(project_id_or_code))
+      ACL.can!(current_user, resource__, Queries.get_project!(project_id_or_code, one: true))
       case IngestProtocol.ScyllaIngestionService.Impl.send_events(project_id_or_code, api_key, request_content, current_user) do
         response_content when is_struct(response_content, IngestProtocol.IngestorResponse) ->
           Logger.info("rpc_res: #{resource__}", data: %{result: response_content}, domain: [:rpc])
@@ -62,38 +63,26 @@ defmodule IngestProtocol.ScyllaIngestionService do
         conn
           |> put_resp_content_type("application/json")
           |> send_resp(400, body)
+      e in DataProtocol.GatewayError ->
+        Logger.warning("rpc_err: #{resource__}", data: %{exception: e}, domain: [:rpc])
+        body = e
+          |> Igor.Exception.wrap()
+          |> Igor.Json.pack_value({:custom, DataProtocol.GatewayError})
+          |> Igor.Json.encode!()
+        conn
+          |> put_resp_content_type("application/json")
+          |> send_resp(502, body)
       e -> Igor.Exception.handle(e, __STACKTRACE__, conn, resource__)
     end
   end
 
   # ----------------------------------------------------------------------------
-  # Get project schema
-  # ----------------------------------------------------------------------------
-
-  get "/:project_id_or_code/schema", [] do
-    resource__ = "IngestProtocol.ScyllaIngestionService.GetSchema"
-    try do
-      project_id_or_code = Igor.Json.parse_field!(conn.path_params, "project_id_or_code", {:custom, Scylla.ProjectId})
-      api_key = Igor.Json.parse_field!(%{"x-api-key" => List.first(get_req_header(conn, "x-api-key"))}, "x-api-key", {:option, :string})
-      current_user = api_key && %{role: ~s'scylla_ext', key: api_key} || conn.assigns[:current_user] || raise DataProtocol.UnauthorizedError
-      Logger.info("rpc_req: #{resource__}", data: %{method: "IngestProtocol.ScyllaIngestionService.Impl.get_schema", args: [project_id_or_code: project_id_or_code, api_key: api_key, current_user: current_user]}, domain: [:rpc])
-      ACL.can!(current_user, resource__, Scylla.get_project!(project_id_or_code))
-      case IngestProtocol.ScyllaIngestionService.Impl.get_schema(project_id_or_code, api_key, current_user) do
-        response_content when is_struct(response_content, IngestProtocol.OldSchemaResponse) ->
-          Logger.info("rpc_res: #{resource__}", data: %{result: response_content}, domain: [:rpc])
-          body = response_content
-            |> Igor.Json.pack_value({:custom, IngestProtocol.OldSchemaResponse})
-            |> Igor.Json.encode!()
-          conn
-            |> put_resp_content_type("application/json")
-            |> send_resp(200, body)
-      end
-    rescue
-      e -> Igor.Exception.handle(e, __STACKTRACE__, conn, resource__)
-    end
-  end
-
-  # ----------------------------------------------------------------------------
+  # // NB: internal
+  # # Get project schema
+  # GetSchema => GET /{ProjectId project_id_or_code}/schema
+  # ~x-api-key: {?string api_key}
+  # ->
+  # 200: _OldSchemaResponse;
   # Update project schema
   # ----------------------------------------------------------------------------
 
@@ -110,7 +99,7 @@ defmodule IngestProtocol.ScyllaIngestionService do
         |> Igor.Json.parse_value!({:custom, IgorSchema.Schema})
       current_user = api_key && %{role: ~s'scylla_ext', key: api_key} || conn.assigns[:current_user] || raise DataProtocol.UnauthorizedError
       Logger.info("rpc_req: #{resource__}", data: %{method: "IngestProtocol.ScyllaIngestionService.Impl.update_schema", args: [project_id_or_code: project_id_or_code, force: force, api_key: api_key, request_content: request_content, current_user: current_user]}, domain: [:rpc])
-      ACL.can!(current_user, resource__, Scylla.get_project!(project_id_or_code))
+      ACL.can!(current_user, resource__, Queries.get_project!(project_id_or_code, one: true))
       case IngestProtocol.ScyllaIngestionService.Impl.update_schema(project_id_or_code, force, api_key, request_content, current_user) do
         true ->
           Logger.info("rpc_res: #{resource__}", data: %{result: true}, domain: [:rpc])
@@ -136,6 +125,15 @@ defmodule IngestProtocol.ScyllaIngestionService do
         conn
           |> put_resp_content_type("application/json")
           |> send_resp(409, body)
+      e in DataProtocol.GatewayError ->
+        Logger.warning("rpc_err: #{resource__}", data: %{exception: e}, domain: [:rpc])
+        body = e
+          |> Igor.Exception.wrap()
+          |> Igor.Json.pack_value({:custom, DataProtocol.GatewayError})
+          |> Igor.Json.encode!()
+        conn
+          |> put_resp_content_type("application/json")
+          |> send_resp(502, body)
       e -> Igor.Exception.handle(e, __STACKTRACE__, conn, resource__)
     end
   end

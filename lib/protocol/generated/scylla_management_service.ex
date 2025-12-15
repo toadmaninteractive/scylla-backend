@@ -65,7 +65,7 @@ defmodule WebProtocol.ScyllaManagementService do
   @doc """
   Fetch list of backup fields
   """
-  @callback get_backup_fields(TypesProtocol.project_id(), WebProtocol.BackupFieldsOrderBy.t(), DataProtocol.OrderDirection.t(), non_neg_integer, non_neg_integer, String.t() | nil, Map.t() | nil) :: DataProtocol.CollectionSlice.t(String.t()) | no_return
+  @callback get_backup_fields(TypesProtocol.project_id(), WebProtocol.BackupFieldOrderBy.t(), DataProtocol.OrderDirection.t(), non_neg_integer, non_neg_integer, String.t() | nil, Map.t() | nil) :: DataProtocol.CollectionSlice.t(WebProtocol.BackupField.t()) | no_return
 
   @doc """
   Drop backup fields by name
@@ -152,6 +152,15 @@ defmodule WebProtocol.ScyllaManagementService do
         conn
           |> put_resp_content_type("application/json")
           |> send_resp(400, body)
+      e in DataProtocol.GatewayError ->
+        Logger.warning("rpc_err: #{resource__}", data: %{exception: e}, domain: [:rpc])
+        body = e
+          |> Igor.Exception.wrap()
+          |> Igor.Json.pack_value({:custom, DataProtocol.GatewayError})
+          |> Igor.Json.encode!()
+        conn
+          |> put_resp_content_type("application/json")
+          |> send_resp(502, body)
       e -> Igor.Exception.handle(e, __STACKTRACE__, conn, resource__)
     end
   end
@@ -310,6 +319,15 @@ defmodule WebProtocol.ScyllaManagementService do
         conn
           |> put_resp_content_type("application/json")
           |> send_resp(400, body)
+      e in DataProtocol.GatewayError ->
+        Logger.warning("rpc_err: #{resource__}", data: %{exception: e}, domain: [:rpc])
+        body = e
+          |> Igor.Exception.wrap()
+          |> Igor.Json.pack_value({:custom, DataProtocol.GatewayError})
+          |> Igor.Json.encode!()
+        conn
+          |> put_resp_content_type("application/json")
+          |> send_resp(502, body)
       e -> Igor.Exception.handle(e, __STACKTRACE__, conn, resource__)
     end
   end
@@ -379,6 +397,15 @@ defmodule WebProtocol.ScyllaManagementService do
         conn
           |> put_resp_content_type("application/json")
           |> send_resp(400, body)
+      e in DataProtocol.GatewayError ->
+        Logger.warning("rpc_err: #{resource__}", data: %{exception: e}, domain: [:rpc])
+        body = e
+          |> Igor.Exception.wrap()
+          |> Igor.Json.pack_value({:custom, DataProtocol.GatewayError})
+          |> Igor.Json.encode!()
+        conn
+          |> put_resp_content_type("application/json")
+          |> send_resp(502, body)
       e -> Igor.Exception.handle(e, __STACKTRACE__, conn, resource__)
     end
   end
@@ -403,6 +430,15 @@ defmodule WebProtocol.ScyllaManagementService do
             |> send_resp(204, "")
       end
     rescue
+      e in DataProtocol.GatewayError ->
+        Logger.warning("rpc_err: #{resource__}", data: %{exception: e}, domain: [:rpc])
+        body = e
+          |> Igor.Exception.wrap()
+          |> Igor.Json.pack_value({:custom, DataProtocol.GatewayError})
+          |> Igor.Json.encode!()
+        conn
+          |> put_resp_content_type("application/json")
+          |> send_resp(502, body)
       e -> Igor.Exception.handle(e, __STACKTRACE__, conn, resource__)
     end
   end
@@ -448,7 +484,7 @@ defmodule WebProtocol.ScyllaManagementService do
     resource__ = "WebProtocol.ScyllaManagementService.GetBackupFields"
     try do
       id_or_code = Igor.Json.parse_field!(conn.path_params, "id_or_code", {:custom, Scylla.ProjectId})
-      order_by = Igor.Json.parse_field!(conn.query_params, "order_by", {:custom, WebProtocol.BackupFieldsOrderBy}, :name)
+      order_by = Igor.Json.parse_field!(conn.query_params, "order_by", {:custom, WebProtocol.BackupFieldOrderBy}, :name)
       order_dir = Igor.Json.parse_field!(conn.query_params, "order_dir", {:custom, DataProtocol.OrderDirection}, :asc)
       offset = Igor.Json.parse_field!(conn.query_params, "offset", :uint, 0)
       limit = Igor.Json.parse_field!(conn.query_params, "limit", :uint, 10)
@@ -460,13 +496,22 @@ defmodule WebProtocol.ScyllaManagementService do
         response_content ->
           Logger.info("rpc_res: #{resource__}", data: %{result: response_content}, domain: [:rpc])
           body = response_content
-            |> Igor.Json.pack_value({:custom, DataProtocol.CollectionSlice, {:string}})
+            |> Igor.Json.pack_value({:custom, DataProtocol.CollectionSlice, {{:custom, WebProtocol.BackupField}}})
             |> Igor.Json.encode!()
           conn
             |> put_resp_content_type("application/json")
             |> send_resp(200, body)
       end
     rescue
+      e in DataProtocol.GatewayError ->
+        Logger.warning("rpc_err: #{resource__}", data: %{exception: e}, domain: [:rpc])
+        body = e
+          |> Igor.Exception.wrap()
+          |> Igor.Json.pack_value({:custom, DataProtocol.GatewayError})
+          |> Igor.Json.encode!()
+        conn
+          |> put_resp_content_type("application/json")
+          |> send_resp(502, body)
       e -> Igor.Exception.handle(e, __STACKTRACE__, conn, resource__)
     end
   end
@@ -480,6 +525,7 @@ defmodule WebProtocol.ScyllaManagementService do
     try do
       id_or_code = Igor.Json.parse_field!(conn.path_params, "id_or_code", {:custom, Scylla.ProjectId})
       api_key = Igor.Json.parse_field!(%{"x-api-key" => List.first(get_req_header(conn, "x-api-key"))}, "x-api-key", {:option, :string})
+      if get_req_header(conn, "content-type") != ["application/json"], do: raise(Plug.BadRequestError, "The request must have header 'content-type' equal to 'application/json'")
       {:ok, body, conn} = read_body(conn)
       request_content = body
         |> Igor.Json.decode!()
@@ -494,6 +540,15 @@ defmodule WebProtocol.ScyllaManagementService do
             |> send_resp(204, "")
       end
     rescue
+      e in DataProtocol.GatewayError ->
+        Logger.warning("rpc_err: #{resource__}", data: %{exception: e}, domain: [:rpc])
+        body = e
+          |> Igor.Exception.wrap()
+          |> Igor.Json.pack_value({:custom, DataProtocol.GatewayError})
+          |> Igor.Json.encode!()
+        conn
+          |> put_resp_content_type("application/json")
+          |> send_resp(502, body)
       e -> Igor.Exception.handle(e, __STACKTRACE__, conn, resource__)
     end
   end
@@ -522,6 +577,15 @@ defmodule WebProtocol.ScyllaManagementService do
             |> send_resp(200, body)
       end
     rescue
+      e in DataProtocol.GatewayError ->
+        Logger.warning("rpc_err: #{resource__}", data: %{exception: e}, domain: [:rpc])
+        body = e
+          |> Igor.Exception.wrap()
+          |> Igor.Json.pack_value({:custom, DataProtocol.GatewayError})
+          |> Igor.Json.encode!()
+        conn
+          |> put_resp_content_type("application/json")
+          |> send_resp(502, body)
       e -> Igor.Exception.handle(e, __STACKTRACE__, conn, resource__)
     end
   end

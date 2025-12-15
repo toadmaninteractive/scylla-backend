@@ -536,9 +536,9 @@ defmodule WebProtocol do
 
   defmodule ProjectError do
 
-    @type t :: :invalid_data | :invalid_code | :invalid_name | :invalid_clickhouse_instance_id | :invalid_clickhouse_db | :invalid_description | :clickhouse_instance_not_exists | :code_already_exists | :name_already_exists
+    @type t :: :invalid_data | :invalid_code | :invalid_name | :invalid_clickhouse_instance_id | :invalid_clickhouse_db | :invalid_description | :invalid_event_validation | :clickhouse_instance_not_exists | :code_already_exists | :name_already_exists
 
-    defguard is_project_error(value) when value === :invalid_data or value === :invalid_code or value === :invalid_name or value === :invalid_clickhouse_instance_id or value === :invalid_clickhouse_db or value === :invalid_description or value === :clickhouse_instance_not_exists or value === :code_already_exists or value === :name_already_exists
+    defguard is_project_error(value) when value === :invalid_data or value === :invalid_code or value === :invalid_name or value === :invalid_clickhouse_instance_id or value === :invalid_clickhouse_db or value === :invalid_description or value === :invalid_event_validation or value === :clickhouse_instance_not_exists or value === :code_already_exists or value === :name_already_exists
 
     @spec from_string!(String.t()) :: t()
     def from_string!("invalid_data"), do: :invalid_data
@@ -547,6 +547,7 @@ defmodule WebProtocol do
     def from_string!("invalid_clickhouse_instance_id"), do: :invalid_clickhouse_instance_id
     def from_string!("invalid_clickhouse_db"), do: :invalid_clickhouse_db
     def from_string!("invalid_description"), do: :invalid_description
+    def from_string!("invalid_event_validation"), do: :invalid_event_validation
     def from_string!("clickhouse_instance_not_exists"), do: :clickhouse_instance_not_exists
     def from_string!("code_already_exists"), do: :code_already_exists
     def from_string!("name_already_exists"), do: :name_already_exists
@@ -558,6 +559,7 @@ defmodule WebProtocol do
     def to_string!(:invalid_clickhouse_instance_id), do: "invalid_clickhouse_instance_id"
     def to_string!(:invalid_clickhouse_db), do: "invalid_clickhouse_db"
     def to_string!(:invalid_description), do: "invalid_description"
+    def to_string!(:invalid_event_validation), do: "invalid_event_validation"
     def to_string!(:clickhouse_instance_not_exists), do: "clickhouse_instance_not_exists"
     def to_string!(:code_already_exists), do: "code_already_exists"
     def to_string!(:name_already_exists), do: "name_already_exists"
@@ -569,6 +571,7 @@ defmodule WebProtocol do
     def from_json!("invalid_clickhouse_instance_id"), do: :invalid_clickhouse_instance_id
     def from_json!("invalid_clickhouse_db"), do: :invalid_clickhouse_db
     def from_json!("invalid_description"), do: :invalid_description
+    def from_json!("invalid_event_validation"), do: :invalid_event_validation
     def from_json!("clickhouse_instance_not_exists"), do: :clickhouse_instance_not_exists
     def from_json!("code_already_exists"), do: :code_already_exists
     def from_json!("name_already_exists"), do: :name_already_exists
@@ -580,6 +583,7 @@ defmodule WebProtocol do
     def to_json!(:invalid_clickhouse_instance_id), do: "invalid_clickhouse_instance_id"
     def to_json!(:invalid_clickhouse_db), do: "invalid_clickhouse_db"
     def to_json!(:invalid_description), do: "invalid_description"
+    def to_json!(:invalid_event_validation), do: "invalid_event_validation"
     def to_json!(:clickhouse_instance_not_exists), do: "clickhouse_instance_not_exists"
     def to_json!(:code_already_exists), do: "code_already_exists"
     def to_json!(:name_already_exists), do: "name_already_exists"
@@ -664,7 +668,50 @@ defmodule WebProtocol do
 
   end
 
-  defmodule BackupFieldsOrderBy do
+  defmodule BackupField do
+
+    @enforce_keys [:project_id, :project_code, :name, :field_name, :migration]
+    defstruct [project_id: nil, project_code: nil, name: nil, field_name: nil, migration: nil]
+
+    @type t :: %BackupField{project_id: integer, project_code: String.t(), name: String.t(), field_name: String.t(), migration: String.t()}
+
+    @spec from_json!(Igor.Json.json()) :: t()
+    def from_json!(json) do
+      project_id = Igor.Json.parse_field!(json, "project_id", :long)
+      project_code = Igor.Json.parse_field!(json, "project_code", :string)
+      name = Igor.Json.parse_field!(json, "name", :string)
+      field_name = Igor.Json.parse_field!(json, "field_name", :string)
+      migration = Igor.Json.parse_field!(json, "migration", :string)
+      %BackupField{
+        project_id: project_id,
+        project_code: project_code,
+        name: name,
+        field_name: field_name,
+        migration: migration
+      }
+    end
+
+    @spec to_json!(t()) :: Igor.Json.json()
+    def to_json!(args) do
+      %{
+        project_id: project_id,
+        project_code: project_code,
+        name: name,
+        field_name: field_name,
+        migration: migration
+      } = args
+      %{
+        "project_id" => Igor.Json.pack_value(project_id, :long),
+        "project_code" => Igor.Json.pack_value(project_code, :string),
+        "name" => Igor.Json.pack_value(name, :string),
+        "field_name" => Igor.Json.pack_value(field_name, :string),
+        "migration" => Igor.Json.pack_value(migration, :string)
+      }
+    end
+
+  end
+
+  defmodule BackupFieldOrderBy do
 
     @moduledoc """
     Backup columns sort fields
@@ -672,7 +719,7 @@ defmodule WebProtocol do
 
     @type t :: :name | :field_name | :migration
 
-    defguard is_backup_fields_order_by(value) when value === :name or value === :field_name or value === :migration
+    defguard is_backup_field_order_by(value) when value === :name or value === :field_name or value === :migration
 
     @spec from_string!(String.t()) :: t()
     def from_string!("name"), do: :name

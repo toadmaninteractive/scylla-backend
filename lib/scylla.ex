@@ -140,7 +140,7 @@ defmodule Scylla do
     clickhouse_instance = get_clickhouse_instance!(clickhouse_instance_id)
     table = Application.fetch_env!(:scylla, :clickhouse)[:table]
     sql = case no_default do
-      true -> "SELECT name, trim(type || ' ' || default_kind) AS chdef, is_in_sorting_key as order_by FROM system.columns WHERE database = '#{database}' AND table = '#{table}' ORDER BY position FORMAT JSON"
+      true -> "SELECT name, type AS chdef, is_in_sorting_key as order_by FROM system.columns WHERE database = '#{database}' AND table = '#{table}' ORDER BY position FORMAT JSON"
       false -> "SELECT name, trim(type || ' ' || default_kind || ' ' || default_expression) AS chdef, is_in_sorting_key as order_by FROM system.columns WHERE database = '#{database}' AND table = '#{table}' ORDER BY position FORMAT JSON"
     end
     defs = call_clickhouse!(clickhouse_instance, sql, database)
@@ -149,7 +149,7 @@ defmodule Scylla do
     fields = defs
       |> Enum.map(& {&1.name, &1.chdef})
     order_by = defs
-      |> Enum.filter(& &1.order_by)
+      |> Enum.filter(& &1.order_by > 0)
       |> Enum.map(& &1.name)
       |> Enum.join(", ")
     {fields, order_by}
@@ -419,64 +419,30 @@ IO.inspect({:reo, actions})
   defp escape("n" <> _ = x), do: "'#{x}'"
   defp escape(x), do: x
 
-  def push_events!(%{code: project_code, clickhouse_instance_id: clickhouse_instance_id, clickhouse_db: database, event_validation: "strict"}, events) when is_list(events) do
+  def push_events!(%{code: project_code, clickhouse_instance_id: clickhouse_instance_id, clickhouse_db: database, event_validation: event_validation}, events) when is_list(events) do
     Logger.metadata(project_code: project_code)
-    %{valid: valid_events, invalid: invalid_events} = validate_against_schema(events, project_code, database)
-    batches = valid_events
-      |> Enum.map(fn {_vn, ev} -> sanitize(ev) end)
-      |> Enum.group_by(& Keyword.keys(&1) |> Enum.join(","), & Keyword.values(&1) |> escape() |> Enum.join("\t"))
+    {valid_events, invalid_events} = case event_validation do
+      # strict validation: use schema to process only valid events
+      "strict" ->
+        %{valid: valid_events, invalid: invalid_events} = validate_against_schema(events, project_code, database)
+        {valid_events, invalid_events}
+      # soft validation: use schema to figure out invalid events, insert all events as-is
+      "warn" ->
+        %{invalid: invalid_events} = validate_against_schema(events, project_code, database)
+        valid_events = events |> Enum.map(& {project_code, &1})
+        {valid_events, invalid_events}
+      # no validation: insert all events as-is
+      "none" ->
+        valid_events = events |> Enum.map(& {project_code, &1})
+        invalid_events = []
+        {valid_events, invalid_events}
+    end
     clickhouse_instance = get_clickhouse_instance!(clickhouse_instance_id)
     table = Application.fetch_env!(:scylla, :clickhouse)[:table]
-    for {columns, lines} <- batches do
-      sql = "INSERT INTO #{table} (#{columns}) FORMAT TSVRaw"
-      data = lines
-        |> Enum.join("\n")
-      Logger.debug("clickhouse: inserting #{length(lines)} events for project=#{project_code}", data: %{sql: sql, data: data}, domain: [:clickhouse])
-      try do
-        case call_clickhouse!(clickhouse_instance, data, database, sql) do
-          "" ->
-            Logger.info("clickhouse: inserted #{length(lines)} events for project=#{project_code}", data: %{}, domain: [:clickhouse])
-            :ok
-          message ->
-            raise ClickhouseError, message: message, code: nil
-            :ok
-        end
-      rescue
-        e in ClickhouseError ->
-          filename = "#{project_code}-#{Ecto.UUID.generate()}"
-          if e.code == 0 or e.code in Util.config(:scylla, [:clickhouse, :transient_error_codes], []) do
-            Logger.warning("clickhouse: transient error while inserting events for project=#{project_code}", data: %{exception: e}, domain: [:clickhouse])
-            save_events_for_retry!(filename, clickhouse_instance_id, database, sql, data, e)
-            Logger.info("clickhouse: saved parsed events to file new/#{filename} for later retry", data: %{filename: filename}, domain: [:clickhouse])
-            :ok
-          else
-            Logger.error("clickhouse: permanent error while inserting events for project=#{project_code}", data: %{exception: e}, domain: [:clickhouse])
-            save_events_for_analysis!(filename, clickhouse_instance_id, database, sql, data, e)
-            Logger.info("clickhouse: saved parsed events to file err/#{filename} for manual analysis", data: %{filename: filename}, domain: [:clickhouse])
-            :ok
-          end
-      end
-    end
-    # IO.inspect({:pe, valid_events, invalid_events})
-    errors = invalid_events
-      |> Enum.map(fn {errors, index, event} ->
-        message = errors |> Enum.map(fn {name, message} -> "#{name} #{message}" end)
-        Logger.error("schema: invalid event for project=#{project_code}: #{message}", data: %{event: event, errors: message}, domain: [:schema])
-        errors |> Enum.map(fn {name, message} -> "events[#{index}].#{name} #{message}" end)
-      end)
-      |> List.flatten()
-    # IO.inspect({:pe, errors})
-    {length(valid_events), errors}
-  end
-  def push_events!(%{code: project_code, clickhouse_instance_id: clickhouse_instance_id, clickhouse_db: database, event_validation: event_validation}, events) when is_list(events) and event_validation != "strict" do
-    Logger.metadata(project_code: project_code)
-    valid_events = events |> Enum.map(& {project_code, &1})
     batches = valid_events
       |> Enum.map(fn {_vn, ev} -> sanitize(ev) end)
       |> Enum.group_by(fn kv -> kv |> Enum.map(& elem(&1, 0)) |> Enum.join(",") end, fn kv -> kv |> Enum.map(& elem(&1, 1)) |> escape() |> Enum.join("\t") end)
-    clickhouse_instance = get_clickhouse_instance!(clickhouse_instance_id)
-    table = Application.fetch_env!(:scylla, :clickhouse)[:table]
-    results = for {columns, lines} <- batches do
+    clickhouse_insertion_results = for {columns, lines} <- batches do
       sql = "INSERT INTO #{table} (#{columns}) FORMAT TSVRaw"
       data = lines
         |> Enum.join("\n")
@@ -494,28 +460,34 @@ IO.inspect({:reo, actions})
         e in ClickhouseError ->
           filename = "#{project_code}-#{Ecto.UUID.generate()}"
           if e.code == 0 or e.code in Util.config(:scylla, [:clickhouse, :transient_error_codes], []) do
-            Logger.warning("clickhouse: transient error while inserting events for project=#{project_code}", data: %{exception: e}, domain: [:clickhouse])
+            Logger.warning("clickhouse: transient error while inserting events for project=#{project_code}", data: %{exception: e, filename: "new/#{filename}"}, domain: [:clickhouse])
             save_events_for_retry!(filename, clickhouse_instance_id, database, sql, data, e)
-            Logger.info("clickhouse: saved parsed events to file new/#{filename} for later retry", data: %{filename: filename}, domain: [:clickhouse])
+            # Logger.info("clickhouse: saved parsed events to file new/#{filename} for later retry", data: %{filename: filename}, domain: [:clickhouse])
             :ok
           else
-            Logger.error("clickhouse: permanent error while inserting events for project=#{project_code}", data: %{exception: e}, domain: [:clickhouse])
+            content = if String.length(data) < 1024, do: data, else: "[see file err/#{filename}]"
+            Logger.warning("clickhouse: permanent error while inserting events for project=#{project_code}", data: %{exception: e, sql: sql, data: content, filename: "err/#{filename}"}, domain: [:clickhouse])
             save_events_for_analysis!(filename, clickhouse_instance_id, database, sql, data, e)
-            Logger.info("clickhouse: saved parsed events to file err/#{filename} for manual analysis", data: %{filename: filename}, domain: [:clickhouse])
+            # Logger.info("clickhouse: saved parsed events to file err/#{filename} for manual analysis", data: %{filename: filename}, domain: [:clickhouse])
             {e.message, data}
           end
       end
     end
     # IO.inspect({:pe, valid_events, invalid_events})
-    errors = results
+    invalid_events_errors = invalid_events
+      |> Enum.map(fn {errors, index, event} ->
+        message = errors |> Enum.map(fn {name, message} -> "#{name} #{message}" end)
+        Logger.error("schema: invalid event for project=#{project_code}: #{message |> Enum.join(", ")}", data: %{event: event, errors: message}, domain: [:schema])
+        errors |> Enum.map(fn {name, message} -> "events[#{index}].#{name} #{message}" end)
+      end)
+      |> List.flatten()
+    clickhouse_insertion_errors = clickhouse_insertion_results
       |> Enum.reject(& &1 === :ok)
       |> Enum.map(fn {message, _data} ->
-        # Logger.error("schema: invalid event for project=#{project_code}: #{message}", data: %{data: data, message: message}, domain: [:clickhouse])
         message
       end)
       |> List.flatten()
-    # IO.inspect({:pe, errors})
-    {length(valid_events), errors}
+    {length(valid_events), invalid_events_errors ++ clickhouse_insertion_errors}
   end
   def push_events!(project_id_or_code, events) when Scylla.ProjectId.is_project_id(project_id_or_code), do: push_events!(get_project!(project_id_or_code), events)
 
@@ -651,6 +623,9 @@ IO.inspect({:reo, actions})
         %{reason: :timeout} -> reraise ClickhouseError, [message: "Network: Clickhouse server not accessible", code: 0], __STACKTRACE__
         %{reason: :closed} -> reraise ClickhouseError, [message: "Network: Clickhouse server not accessible", code: 0], __STACKTRACE__
         %{reason: {:options, {:cb_info, {:gen_tcp, :tcp, :tcp_closed, :tcp_error, :tcp_passive}}}} -> reraise ClickhouseError, [message: "Network: Clickhouse server not accessible", code: 0], __STACKTRACE__
+        %{reason: :check_timeout} ->
+          :hackney_pool.stop_pool(:default)
+          reraise ClickhouseError, [message: "Network: Clickhouse server not accessible", code: 0], __STACKTRACE__
       end
   end
 
@@ -825,9 +800,9 @@ end
   @spec from_json(json :: Map.t(), Keyword.t()) :: {:ok, Map.t()} | {:error, errors :: Keyword.t()}
   def from_json(json, opts \\\\ [])
   def from_json(json, opts) when is_map(json) do
-    {#{inspect(default_struct)}, #{inspect(ecto_embedded_schema)}}
-      |> cast(json, #{inspect(field_names)})
-      |> require_presence(#{inspect(required_field_names)})
+    {#{inspect(default_struct, limit: :infinity)}, #{inspect(ecto_embedded_schema, limit: :infinity)}}
+      |> cast(json, #{inspect(field_names, limit: :infinity)})
+      |> require_presence(#{inspect(required_field_names, limit: :infinity)})
 #{ecto_validations}
       |> apply_action(:update)
       |> case do
@@ -873,9 +848,9 @@ end
       variant_child_name ->
         """
   defp from_json("#{variant_child_name}", json, _opts) when is_map(json) do
-    {#{inspect(default_struct)}, #{inspect(ecto_embedded_schema)}}
-      |> cast(json, #{inspect(field_names)}, empty_values: [nil])
-      |> require_presence(#{inspect(required_field_names)})
+    {#{inspect(default_struct, limit: :infinity)}, #{inspect(ecto_embedded_schema, limit: :infinity)}}
+      |> cast(json, #{inspect(field_names, limit: :infinity)}, empty_values: [nil])
+      |> require_presence(#{inspect(required_field_names, limit: :infinity)})
 #{ecto_validations}
       |> apply_action(:update)
       |> case do

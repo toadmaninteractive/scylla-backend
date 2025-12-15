@@ -4,6 +4,15 @@
 
 defmodule IngestProtocol.ScyllaIngestionService.Impl do
 
+  @moduledoc """
+  record _OldSchemaResponse
+  {
+  dict<string, string> schema;
+  list<string> order;
+  string order_by;
+  }
+  """
+
   @behaviour IngestProtocol.ScyllaIngestionService
 
   # ----------------------------------------------------------------------------
@@ -35,29 +44,12 @@ defmodule IngestProtocol.ScyllaIngestionService.Impl do
   # ----------------------------------------------------------------------------
 
   @doc """
-  Get project schema
-  """
-  @spec get_schema(
-    project_id_or_code :: TypesProtocol.project_id(),
-    api_key :: String.t() | nil,
-    current_user :: Map.t() | nil
-  ) :: IngestProtocol.OldSchemaResponse.t() | no_return
-  @impl IngestProtocol.ScyllaIngestionService
-  def get_schema(
-    project_id_or_code,
-    api_key,
-    current_user
-  ) when
-    is_binary(project_id_or_code) and
-    (is_binary(api_key) or api_key === nil) and
-    (is_map(current_user) or current_user === nil)
-  do
-    raise "Resource 'IngestProtocol.ScyllaIngestionService.GetSchema' not yet implemented"
-  end
-
-  # ----------------------------------------------------------------------------
-
-  @doc """
+  // NB: internal
+  # Get project schema
+  GetSchema => GET /{ProjectId project_id_or_code}/schema
+  ~x-api-key: {?string api_key}
+  ->
+  200: _OldSchemaResponse;
   Update project schema
   """
   @spec update_schema(
@@ -163,7 +155,7 @@ defmodule WebProtocol.ScyllaManagementService.Impl do
   """
   require WebProtocol.SchemaMigrationOrderBy
   require DataProtocol.OrderDirection
-  require WebProtocol.BackupFieldsOrderBy
+  require WebProtocol.BackupFieldOrderBy
 
   @behaviour WebProtocol.ScyllaManagementService
 
@@ -529,13 +521,13 @@ defmodule WebProtocol.ScyllaManagementService.Impl do
   """
   @spec get_backup_fields(
     id_or_code :: TypesProtocol.project_id(),
-    order_by :: WebProtocol.BackupFieldsOrderBy.t(),
+    order_by :: WebProtocol.BackupFieldOrderBy.t(),
     order_dir :: DataProtocol.OrderDirection.t(),
     offset :: non_neg_integer,
     limit :: non_neg_integer,
     api_key :: String.t() | nil,
     current_user :: Map.t() | nil
-  ) :: DataProtocol.CollectionSlice.t(String.t()) | no_return
+  ) :: DataProtocol.CollectionSlice.t(WebProtocol.BackupField.t()) | no_return
   @impl WebProtocol.ScyllaManagementService
   def get_backup_fields(
     id_or_code,
@@ -547,7 +539,7 @@ defmodule WebProtocol.ScyllaManagementService.Impl do
     current_user
   ) when
     is_binary(id_or_code) and
-    WebProtocol.BackupFieldsOrderBy.is_backup_fields_order_by(order_by) and
+    WebProtocol.BackupFieldOrderBy.is_backup_field_order_by(order_by) and
     DataProtocol.OrderDirection.is_order_direction(order_dir) and
     is_integer(offset) and
     is_integer(limit) and
