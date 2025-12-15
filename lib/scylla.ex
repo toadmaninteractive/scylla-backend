@@ -419,7 +419,7 @@ IO.inspect({:reo, actions})
   defp escape("n" <> _ = x), do: "'#{x}'"
   defp escape(x), do: x
 
-  def push_events!(%{code: project_code, clickhouse_instance_id: clickhouse_instance_id, clickhouse_db: database, event_validation: true}, events) when is_list(events) do
+  def push_events!(%{code: project_code, clickhouse_instance_id: clickhouse_instance_id, clickhouse_db: database, event_validation: "strict"}, events) when is_list(events) do
     Logger.metadata(project_code: project_code)
     %{valid: valid_events, invalid: invalid_events} = validate_against_schema(events, project_code, database)
     batches = valid_events
@@ -468,7 +468,7 @@ IO.inspect({:reo, actions})
     # IO.inspect({:pe, errors})
     {length(valid_events), errors}
   end
-  def push_events!(%{code: project_code, clickhouse_instance_id: clickhouse_instance_id, clickhouse_db: database, event_validation: false}, events) when is_list(events) do
+  def push_events!(%{code: project_code, clickhouse_instance_id: clickhouse_instance_id, clickhouse_db: database, event_validation: event_validation}, events) when is_list(events) and event_validation != "strict" do
     Logger.metadata(project_code: project_code)
     valid_events = events |> Enum.map(& {project_code, &1})
     batches = valid_events
