@@ -115,21 +115,21 @@ defmodule DataProtocol do
 
   defmodule BadRequestError do
 
-    defexception [message: "Could not process the request due to client error", log_id: nil, error: nil, details: nil, plug_status: 400]
+    defexception [message: "Could not process the request due to client error", details: nil, log_id: nil, error: nil, plug_status: 400]
 
-    @type t(t_error) :: %BadRequestError{message: String.t(), log_id: String.t() | nil, error: t_error | nil, details: Igor.Json.json() | nil}
+    @type t(t_error) :: %BadRequestError{message: String.t(), details: Igor.Json.json() | nil, log_id: String.t() | nil, error: t_error | nil}
 
     @spec from_json!(Igor.Json.json(), {Igor.Json.type()}) :: t(term)
     def from_json!(json, {t_error_type}) do
       message = Igor.Json.parse_field!(json, "message", :string, "Could not process the request due to client error")
+      details = Igor.Json.parse_field!(json, "details", :json, nil)
       log_id = Igor.Json.parse_field!(json, "log_id", :string, nil)
       error = Igor.Json.parse_field!(json, "error", t_error_type, nil)
-      details = Igor.Json.parse_field!(json, "details", :json, nil)
       %BadRequestError{
         message: message,
+        details: details,
         log_id: log_id,
-        error: error,
-        details: details
+        error: error
       }
     end
 
@@ -137,83 +137,113 @@ defmodule DataProtocol do
     def to_json!(args, {t_error_type}) do
       %{
         message: message,
+        details: details,
         log_id: log_id,
-        error: error,
-        details: details
+        error: error
       } = args
       %{}
         |> Igor.Json.pack_field("message", message, :string)
+        |> Igor.Json.pack_field("details", details, :json)
         |> Igor.Json.pack_field("log_id", log_id, :string)
         |> Igor.Json.pack_field("error", error, t_error_type)
-        |> Igor.Json.pack_field("details", details, :json)
     end
 
   end
 
   defmodule UnauthorizedError do
 
-    defexception [message: "Access denied. Please provide authentication data", log_id: nil, plug_status: 401]
+    defexception [message: "Access denied. Please provide authentication data", details: nil, log_id: nil, error: nil, plug_status: 401]
 
-    @type t :: %UnauthorizedError{message: String.t(), log_id: String.t() | nil}
+    @type t :: %UnauthorizedError{message: String.t(), details: Igor.Json.json() | nil, log_id: String.t() | nil, error: String.t() | nil}
 
     @spec from_json!(Igor.Json.json()) :: t()
     def from_json!(json) do
       message = Igor.Json.parse_field!(json, "message", :string, "Access denied. Please provide authentication data")
+      details = Igor.Json.parse_field!(json, "details", :json, nil)
       log_id = Igor.Json.parse_field!(json, "log_id", :string, nil)
-      %UnauthorizedError{message: message, log_id: log_id}
+      error = Igor.Json.parse_field!(json, "error", :string, nil)
+      %UnauthorizedError{
+        message: message,
+        details: details,
+        log_id: log_id,
+        error: error
+      }
     end
 
     @spec to_json!(t()) :: Igor.Json.json()
     def to_json!(args) do
-      %{message: message, log_id: log_id} = args
+      %{
+        message: message,
+        details: details,
+        log_id: log_id,
+        error: error
+      } = args
       %{}
         |> Igor.Json.pack_field("message", message, :string)
+        |> Igor.Json.pack_field("details", details, :json)
         |> Igor.Json.pack_field("log_id", log_id, :string)
+        |> Igor.Json.pack_field("error", error, :string)
     end
 
   end
 
   defmodule ForbiddenError do
 
-    defexception [message: "Access denied. You are not authorized to perform this action", log_id: nil, plug_status: 403]
+    defexception [message: "Access denied. You are not authorized to perform this action", details: nil, log_id: nil, error: nil, plug_status: 403]
 
-    @type t :: %ForbiddenError{message: String.t(), log_id: String.t() | nil}
+    @type t :: %ForbiddenError{message: String.t(), details: Igor.Json.json() | nil, log_id: String.t() | nil, error: String.t() | nil}
 
     @spec from_json!(Igor.Json.json()) :: t()
     def from_json!(json) do
       message = Igor.Json.parse_field!(json, "message", :string, "Access denied. You are not authorized to perform this action")
+      details = Igor.Json.parse_field!(json, "details", :json, nil)
       log_id = Igor.Json.parse_field!(json, "log_id", :string, nil)
-      %ForbiddenError{message: message, log_id: log_id}
+      error = Igor.Json.parse_field!(json, "error", :string, nil)
+      %ForbiddenError{
+        message: message,
+        details: details,
+        log_id: log_id,
+        error: error
+      }
     end
 
     @spec to_json!(t()) :: Igor.Json.json()
     def to_json!(args) do
-      %{message: message, log_id: log_id} = args
+      %{
+        message: message,
+        details: details,
+        log_id: log_id,
+        error: error
+      } = args
       %{}
         |> Igor.Json.pack_field("message", message, :string)
+        |> Igor.Json.pack_field("details", details, :json)
         |> Igor.Json.pack_field("log_id", log_id, :string)
+        |> Igor.Json.pack_field("error", error, :string)
     end
 
   end
 
   defmodule NotFoundError do
 
-    defexception [message: "Requested resource not found", log_id: nil, plug_status: 404]
+    defexception [message: "Requested resource not found", details: nil, log_id: nil, plug_status: 404]
 
-    @type t :: %NotFoundError{message: String.t(), log_id: String.t() | nil}
+    @type t :: %NotFoundError{message: String.t(), details: Igor.Json.json() | nil, log_id: String.t() | nil}
 
     @spec from_json!(Igor.Json.json()) :: t()
     def from_json!(json) do
       message = Igor.Json.parse_field!(json, "message", :string, "Requested resource not found")
+      details = Igor.Json.parse_field!(json, "details", :json, nil)
       log_id = Igor.Json.parse_field!(json, "log_id", :string, nil)
-      %NotFoundError{message: message, log_id: log_id}
+      %NotFoundError{message: message, details: details, log_id: log_id}
     end
 
     @spec to_json!(t()) :: Igor.Json.json()
     def to_json!(args) do
-      %{message: message, log_id: log_id} = args
+      %{message: message, details: details, log_id: log_id} = args
       %{}
         |> Igor.Json.pack_field("message", message, :string)
+        |> Igor.Json.pack_field("details", details, :json)
         |> Igor.Json.pack_field("log_id", log_id, :string)
     end
 
@@ -221,21 +251,21 @@ defmodule DataProtocol do
 
   defmodule ConflictError do
 
-    defexception [message: "Could not complete due to a conflict with the current state of the resource", log_id: nil, error: nil, details: nil, plug_status: 409]
+    defexception [message: "Could not complete due to a conflict with the current state of the resource", details: nil, log_id: nil, error: nil, plug_status: 409]
 
-    @type t(t_error) :: %ConflictError{message: String.t(), log_id: String.t() | nil, error: t_error | nil, details: Igor.Json.json() | nil}
+    @type t(t_error) :: %ConflictError{message: String.t(), details: Igor.Json.json() | nil, log_id: String.t() | nil, error: t_error | nil}
 
     @spec from_json!(Igor.Json.json(), {Igor.Json.type()}) :: t(term)
     def from_json!(json, {t_error_type}) do
       message = Igor.Json.parse_field!(json, "message", :string, "Could not complete due to a conflict with the current state of the resource")
+      details = Igor.Json.parse_field!(json, "details", :json, nil)
       log_id = Igor.Json.parse_field!(json, "log_id", :string, nil)
       error = Igor.Json.parse_field!(json, "error", t_error_type, nil)
-      details = Igor.Json.parse_field!(json, "details", :json, nil)
       %ConflictError{
         message: message,
+        details: details,
         log_id: log_id,
-        error: error,
-        details: details
+        error: error
       }
     end
 
@@ -243,38 +273,89 @@ defmodule DataProtocol do
     def to_json!(args, {t_error_type}) do
       %{
         message: message,
+        details: details,
         log_id: log_id,
-        error: error,
-        details: details
+        error: error
       } = args
       %{}
         |> Igor.Json.pack_field("message", message, :string)
+        |> Igor.Json.pack_field("details", details, :json)
         |> Igor.Json.pack_field("log_id", log_id, :string)
         |> Igor.Json.pack_field("error", error, t_error_type)
-        |> Igor.Json.pack_field("details", details, :json)
     end
 
   end
 
   defmodule InternalServerError do
 
-    defexception [message: "Could not process the request due to server error. Please contact developers", log_id: nil, plug_status: 500]
+    defexception [message: "Could not process the request due to server error. Please contact developers", details: nil, log_id: nil, error: nil, plug_status: 500]
 
-    @type t :: %InternalServerError{message: String.t(), log_id: String.t() | nil}
+    @type t :: %InternalServerError{message: String.t(), details: Igor.Json.json() | nil, log_id: String.t() | nil, error: String.t() | nil}
 
     @spec from_json!(Igor.Json.json()) :: t()
     def from_json!(json) do
       message = Igor.Json.parse_field!(json, "message", :string, "Could not process the request due to server error. Please contact developers")
+      details = Igor.Json.parse_field!(json, "details", :json, nil)
       log_id = Igor.Json.parse_field!(json, "log_id", :string, nil)
-      %InternalServerError{message: message, log_id: log_id}
+      error = Igor.Json.parse_field!(json, "error", :string, nil)
+      %InternalServerError{
+        message: message,
+        details: details,
+        log_id: log_id,
+        error: error
+      }
     end
 
     @spec to_json!(t()) :: Igor.Json.json()
     def to_json!(args) do
-      %{message: message, log_id: log_id} = args
+      %{
+        message: message,
+        details: details,
+        log_id: log_id,
+        error: error
+      } = args
       %{}
         |> Igor.Json.pack_field("message", message, :string)
+        |> Igor.Json.pack_field("details", details, :json)
         |> Igor.Json.pack_field("log_id", log_id, :string)
+        |> Igor.Json.pack_field("error", error, :string)
+    end
+
+  end
+
+  defmodule GatewayError do
+
+    defexception [message: "Error while exchanging with external system", details: nil, log_id: nil, error: nil, plug_status: 502]
+
+    @type t :: %GatewayError{message: String.t(), details: Igor.Json.json() | nil, log_id: String.t() | nil, error: String.t() | nil}
+
+    @spec from_json!(Igor.Json.json()) :: t()
+    def from_json!(json) do
+      message = Igor.Json.parse_field!(json, "message", :string, "Error while exchanging with external system")
+      details = Igor.Json.parse_field!(json, "details", :json, nil)
+      log_id = Igor.Json.parse_field!(json, "log_id", :string, nil)
+      error = Igor.Json.parse_field!(json, "error", :string, nil)
+      %GatewayError{
+        message: message,
+        details: details,
+        log_id: log_id,
+        error: error
+      }
+    end
+
+    @spec to_json!(t()) :: Igor.Json.json()
+    def to_json!(args) do
+      %{
+        message: message,
+        details: details,
+        log_id: log_id,
+        error: error
+      } = args
+      %{}
+        |> Igor.Json.pack_field("message", message, :string)
+        |> Igor.Json.pack_field("details", details, :json)
+        |> Igor.Json.pack_field("log_id", log_id, :string)
+        |> Igor.Json.pack_field("error", error, :string)
     end
 
   end

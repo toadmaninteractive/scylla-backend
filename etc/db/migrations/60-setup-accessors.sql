@@ -36,7 +36,7 @@ begin
         execute qry using p_data into result;
     elseif p_options->'return' = '"pkey"' then
         -- https://wiki.postgresql.org/wiki/Retrieve_primary_key_columns
-        select coalesce(string_agg(a.attname, ', '), 'id') into s from pg_index i inner join pg_attribute a on a.attrelid = i.indrelid and a.attnum = any(i.indkey) where i.indrelid = p_class and indisprimary;
+        select coalesce(string_agg(a.attname, ', '), 'id') into s from pg_index i inner join pg_attribute a on a.attrelid = i.indrelid and a.attnum = any(i.indkey) where i.indrelid = p_class and i.indisprimary;
         qry = format('with result as (%s returning %s) select jsonb_agg(result) from result', qry, s);
         execute qry using p_data into result;
     else
@@ -273,7 +273,7 @@ begin
         execute qry using p_patch, p_where into result;
     elseif p_options->'return' = '"pkey"' then
         -- https://wiki.postgresql.org/wiki/Retrieve_primary_key_columns
-        select coalesce(string_agg(a.attname, ', '), 'id') into s from pg_index i inner join pg_attribute a on a.attrelid = i.indrelid and a.attnum = any(i.indkey) where i.indrelid = p_class and indisprimary;
+        select coalesce(string_agg(a.attname, ', '), 'id') into s from pg_index i inner join pg_attribute a on a.attrelid = i.indrelid and a.attnum = any(i.indkey) where i.indrelid = p_class and i.indisprimary;
         qry = format('with result as (%s returning %s) select jsonb_agg(result) from result', qry, s);
         execute qry using p_patch, p_where into result;
     else
@@ -356,7 +356,7 @@ begin
         execute qry using p_where into result;
     elseif p_options->'return' = '"pkey"' then
         -- https://wiki.postgresql.org/wiki/Retrieve_primary_key_columns
-        select coalesce(string_agg(a.attname, ', '), 'id') into s from pg_index i inner join pg_attribute a on a.attrelid = i.indrelid and a.attnum = any(i.indkey) where i.indrelid = p_class and indisprimary;
+        select coalesce(string_agg(a.attname, ', '), 'id') into s from pg_index i inner join pg_attribute a on a.attrelid = i.indrelid and a.attnum = any(i.indkey) where i.indrelid = p_class and i.indisprimary;
         qry = format('with result as (%s returning %s) select jsonb_agg(result) from result', qry, s);
         execute qry using p_where into result;
     else

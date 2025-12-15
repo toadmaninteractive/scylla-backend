@@ -53,9 +53,9 @@ defmodule IngestProtocol do
 
   defmodule IngestError do
 
-    @type t :: :invalid_data | :invalid_schema | :invalid_event | :invalid_event_tag | :unknown_event_tag
+    @type t :: :invalid_data | :invalid_schema | :invalid_event | :invalid_event_tag | :unknown_event_tag | :project_not_exists
 
-    defguard is_ingest_error(value) when value === :invalid_data or value === :invalid_schema or value === :invalid_event or value === :invalid_event_tag or value === :unknown_event_tag
+    defguard is_ingest_error(value) when value === :invalid_data or value === :invalid_schema or value === :invalid_event or value === :invalid_event_tag or value === :unknown_event_tag or value === :project_not_exists
 
     @spec from_string!(String.t()) :: t()
     def from_string!("invalid_data"), do: :invalid_data
@@ -63,6 +63,7 @@ defmodule IngestProtocol do
     def from_string!("invalid_event"), do: :invalid_event
     def from_string!("invalid_event_tag"), do: :invalid_event_tag
     def from_string!("unknown_event_tag"), do: :unknown_event_tag
+    def from_string!("project_not_exists"), do: :project_not_exists
 
     @spec to_string!(t()) :: String.t()
     def to_string!(:invalid_data), do: "invalid_data"
@@ -70,6 +71,7 @@ defmodule IngestProtocol do
     def to_string!(:invalid_event), do: "invalid_event"
     def to_string!(:invalid_event_tag), do: "invalid_event_tag"
     def to_string!(:unknown_event_tag), do: "unknown_event_tag"
+    def to_string!(:project_not_exists), do: "project_not_exists"
 
     @spec from_json!(String.t()) :: t()
     def from_json!("invalid_data"), do: :invalid_data
@@ -77,6 +79,7 @@ defmodule IngestProtocol do
     def from_json!("invalid_event"), do: :invalid_event
     def from_json!("invalid_event_tag"), do: :invalid_event_tag
     def from_json!("unknown_event_tag"), do: :unknown_event_tag
+    def from_json!("project_not_exists"), do: :project_not_exists
 
     @spec to_json!(t()) :: String.t()
     def to_json!(:invalid_data), do: "invalid_data"
@@ -84,93 +87,79 @@ defmodule IngestProtocol do
     def to_json!(:invalid_event), do: "invalid_event"
     def to_json!(:invalid_event_tag), do: "invalid_event_tag"
     def to_json!(:unknown_event_tag), do: "unknown_event_tag"
+    def to_json!(:project_not_exists), do: "project_not_exists"
 
   end
 
   defmodule SchemaError do
 
-    @type t :: :invalid_data | :clashing_type | :unknown_type | :invalid_name | :invalid_type_definition | :update_failed
+    @type t :: :invalid_data | :invalid_schema | :clashing_type | :unknown_type | :invalid_name | :invalid_type_definition | :update_failed | :project_not_exists
 
-    defguard is_schema_error(value) when value === :invalid_data or value === :clashing_type or value === :unknown_type or value === :invalid_name or value === :invalid_type_definition or value === :update_failed
+    defguard is_schema_error(value) when value === :invalid_data or value === :invalid_schema or value === :clashing_type or value === :unknown_type or value === :invalid_name or value === :invalid_type_definition or value === :update_failed or value === :project_not_exists
 
     @spec from_string!(String.t()) :: t()
     def from_string!("invalid_data"), do: :invalid_data
+    def from_string!("invalid_schema"), do: :invalid_schema
     def from_string!("clashing_type"), do: :clashing_type
     def from_string!("unknown_type"), do: :unknown_type
     def from_string!("invalid_name"), do: :invalid_name
     def from_string!("invalid_type_definition"), do: :invalid_type_definition
     def from_string!("update_failed"), do: :update_failed
+    def from_string!("project_not_exists"), do: :project_not_exists
 
     @spec to_string!(t()) :: String.t()
     def to_string!(:invalid_data), do: "invalid_data"
+    def to_string!(:invalid_schema), do: "invalid_schema"
     def to_string!(:clashing_type), do: "clashing_type"
     def to_string!(:unknown_type), do: "unknown_type"
     def to_string!(:invalid_name), do: "invalid_name"
     def to_string!(:invalid_type_definition), do: "invalid_type_definition"
     def to_string!(:update_failed), do: "update_failed"
+    def to_string!(:project_not_exists), do: "project_not_exists"
 
     @spec from_json!(String.t()) :: t()
     def from_json!("invalid_data"), do: :invalid_data
+    def from_json!("invalid_schema"), do: :invalid_schema
     def from_json!("clashing_type"), do: :clashing_type
     def from_json!("unknown_type"), do: :unknown_type
     def from_json!("invalid_name"), do: :invalid_name
     def from_json!("invalid_type_definition"), do: :invalid_type_definition
     def from_json!("update_failed"), do: :update_failed
+    def from_json!("project_not_exists"), do: :project_not_exists
 
     @spec to_json!(t()) :: String.t()
     def to_json!(:invalid_data), do: "invalid_data"
+    def to_json!(:invalid_schema), do: "invalid_schema"
     def to_json!(:clashing_type), do: "clashing_type"
     def to_json!(:unknown_type), do: "unknown_type"
     def to_json!(:invalid_name), do: "invalid_name"
     def to_json!(:invalid_type_definition), do: "invalid_type_definition"
     def to_json!(:update_failed), do: "update_failed"
+    def to_json!(:project_not_exists), do: "project_not_exists"
 
   end
 
   defmodule SchemaConflictError do
 
-    @type t :: :dangerous_action
+    @type t :: :same_schema | :dangerous_action
 
-    defguard is_schema_conflict_error(value) when value === :dangerous_action
+    defguard is_schema_conflict_error(value) when value === :same_schema or value === :dangerous_action
 
     @spec from_string!(String.t()) :: t()
+    def from_string!("same_schema"), do: :same_schema
     def from_string!("dangerous_action"), do: :dangerous_action
 
     @spec to_string!(t()) :: String.t()
+    def to_string!(:same_schema), do: "same_schema"
     def to_string!(:dangerous_action), do: "dangerous_action"
 
     @spec from_json!(String.t()) :: t()
+    def from_json!("same_schema"), do: :same_schema
     def from_json!("dangerous_action"), do: :dangerous_action
 
     @spec to_json!(t()) :: String.t()
+    def to_json!(:same_schema), do: "same_schema"
     def to_json!(:dangerous_action), do: "dangerous_action"
-
-  end
-
-  defmodule OldSchemaResponse do
-
-    @enforce_keys [:schema, :order, :order_by]
-    defstruct [schema: nil, order: nil, order_by: nil]
-
-    @type t :: %OldSchemaResponse{schema: %{String.t() => String.t()}, order: [String.t()], order_by: String.t()}
-
-    @spec from_json!(Igor.Json.json()) :: t()
-    def from_json!(json) do
-      schema = Igor.Json.parse_field!(json, "schema", {:map, :string, :string})
-      order = Igor.Json.parse_field!(json, "order", {:list, :string})
-      order_by = Igor.Json.parse_field!(json, "order_by", :string)
-      %OldSchemaResponse{schema: schema, order: order, order_by: order_by}
-    end
-
-    @spec to_json!(t()) :: Igor.Json.json()
-    def to_json!(args) do
-      %{schema: schema, order: order, order_by: order_by} = args
-      %{
-        "schema" => Igor.Json.pack_value(schema, {:map, :string, :string}),
-        "order" => Igor.Json.pack_value(order, {:list, :string}),
-        "order_by" => Igor.Json.pack_value(order_by, :string)
-      }
-    end
 
   end
 

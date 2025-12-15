@@ -493,7 +493,7 @@ defmodule Igor do
         |> case do
           %{error: errors} -> {:error, type: {:map, key_type, value_type}, errors: errors}
           %{ok: kv} -> {:ok, kv |> Jason.OrderedObject.new()}
-          %{} -> {:ok, %{}}
+          %{} -> {:ok, [] |> Jason.OrderedObject.new()}
         end
     end
     def parse_value(_, {:ordered_map, key_type, value_type}), do: {:error, type: {:map, key_type, value_type}}

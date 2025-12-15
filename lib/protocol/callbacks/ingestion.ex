@@ -33,27 +33,27 @@ defmodule IngestProtocol.ScyllaIngestionService.Impl do
 
   # ----------------------------------------------------------------------------
 
-  @doc """
-  Get project schema
-  """
-  @spec get_schema(
-    project_id_or_code :: TypesProtocol.project_id(),
-    api_key :: String.t() | nil,
-    current_user :: Map.t() | nil
-  ) :: IngestProtocol.OldSchemaResponse.t() | no_return
-  @impl IngestProtocol.ScyllaIngestionService
-  def get_schema(
-    project_id_or_code,
-    api_key,
-    current_user
-  ) when
-    Scylla.ProjectId.is_project_id(project_id_or_code) and
-    (is_binary(api_key) or api_key === nil) and
-    (is_map(current_user) or current_user === nil)
-  do
-    {fields, order_by} = Scylla.get_ingestion_schema!(project_id_or_code)
-    %IngestProtocol.OldSchemaResponse{schema: fields |> Enum.into(%{}), order: fields |> Enum.map(& elem(&1, 0)), order_by: order_by}
-  end
+  #@doc """
+  #Get project schema
+  #"""
+  #@spec get_schema(
+  #  project_id_or_code :: TypesProtocol.project_id(),
+  #  api_key :: String.t() | nil,
+  #  current_user :: Map.t() | nil
+  #) :: IngestProtocol.OldSchemaResponse.t() | no_return
+  #@impl IngestProtocol.ScyllaIngestionService
+  #def get_schema(
+  #  project_id_or_code,
+  #  api_key,
+  #  current_user
+  #) when
+  #  Scylla.ProjectId.is_project_id(project_id_or_code) and
+  #  (is_binary(api_key) or api_key === nil) and
+  #  (is_map(current_user) or current_user === nil)
+  #do
+  #  {fields, order_by} = Scylla.get_ingestion_schema!(project_id_or_code)
+  #  %IngestProtocol.OldSchemaResponse{schema: fields |> Enum.into(%{}), order: fields |> Enum.map(& elem(&1, 0)), order_by: order_by}
+  #end
 
   # ----------------------------------------------------------------------------
 

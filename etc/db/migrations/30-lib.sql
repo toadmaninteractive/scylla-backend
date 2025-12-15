@@ -47,7 +47,11 @@ create or replace function lib.trimmed(s text) returns text as $$
 $$ language sql strict immutable;
 
 create or replace function lib.is_alnum(s text) returns bool as $$
-    select s ~ '^[a-z0-9_]+$'
+    select s ~* '^[a-z0-9_]+$'
+$$ language sql strict immutable;
+
+create or replace function lib.is_identifier(s text) returns bool as $$
+    select s ~* '^[a-z_][a-z0-9_]*$'
 $$ language sql strict immutable;
 
 --------------------------------------------------------------------------------

@@ -4,7 +4,7 @@ defmodule WebProtocol.ScyllaManagementService.Impl do
   require Scylla.ProjectId
   require WebProtocol.SchemaMigrationOrderBy
   require DataProtocol.OrderDirection
-  require WebProtocol.BackupFieldsOrderBy
+  require WebProtocol.BackupFieldOrderBy
 
   @moduledoc """
   Scylla Management Service
@@ -374,7 +374,7 @@ defmodule WebProtocol.ScyllaManagementService.Impl do
   """
   @spec get_backup_fields(
     id_or_code :: TypesProtocol.project_id(),
-    order_by :: WebProtocol.BackupFieldsOrderBy.t(),
+    order_by :: WebProtocol.BackupFieldOrderBy.t(),
     order_dir :: DataProtocol.OrderDirection.t(),
     offset :: non_neg_integer,
     limit :: non_neg_integer,
@@ -392,7 +392,7 @@ defmodule WebProtocol.ScyllaManagementService.Impl do
     current_user
   ) when
     Scylla.ProjectId.is_project_id(id_or_code) and
-    WebProtocol.BackupFieldsOrderBy.is_backup_fields_order_by(order_by) and
+    WebProtocol.BackupFieldOrderBy.is_backup_field_order_by(order_by) and
     DataProtocol.OrderDirection.is_order_direction(order_dir) and
     is_integer(offset) and
     is_integer(limit) and

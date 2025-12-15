@@ -1,5 +1,5 @@
 --! Previous: -
---! Hash: sha1:8ae20b03c59a9bd47ece5c1a6542460db96c8850
+--! Hash: sha1:be0ca89c8cae1d66f540db7837ed99d7ca51018f
 
 --! split: 10-tables.sql
 /*
@@ -9,9 +9,6 @@
 */
 
 -- NB: on enums see https://blog.yo1.dog/updating-enum-values-in-postgresql-the-safe-and-easy-way/
-
-drop type if exists app.project_event_validation_enum cascade;
-create type app.project_event_validation_enum as enum ('strict', 'none', 'warn');
 
 --------------------------------------------------------------------------------
 
@@ -102,8 +99,8 @@ create table if not exists app.project (
     -- NB: text because content formatting matters and json is not comparable
     schema                      text,
     --
-    -- how to apply schema to ingested events
-    event_validation            app.project_event_validation_enum not null default 'strict',
+    -- apply schema to ingested events
+    event_validation            bool not null default true,
     -- do not drop data columns gone from schema
     preserve_db_columns         bool not null default false,
     -- backup data columns changed their type in schema
@@ -111,8 +108,6 @@ create table if not exists app.project (
     --
     constraint project_key_su_differs_from_key_rw check (key_su != key_rw)
 );
-
-create index on app.project(clickhouse_instance_id);
 
 --------------------------------------------------------------------------------
 
@@ -153,8 +148,6 @@ create table if not exists app.project_schema_migration (
     --
     constraint project_schema_migration_schema_differs_from_previous_schema check (schema != previous_schema)
 );
-
-create index on app.project_schema_migration(project_id);
 
 --------------------------------------------------------------------------------
 
