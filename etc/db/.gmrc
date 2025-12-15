@@ -36,18 +36,12 @@
    * these.
    */
   "placeholders": {
-    // ":DATABASE_VISITOR": "!ENV", // Uses process.env.DATABASE_VISITOR
-    // ":DB_NAME": "!ENV",  // use :DATABASE_NAME
-    // ":DB_USER": "!ENV",  // :DATABASE_OWNER
-    //":DB_PASS": "!ENV",
-    //":JWT_AUD": "!ENV",
-    //":JWT_SECRET": "!ENV",
-    ":ROLE_API": "!ENV",
-    ":ROLE_API_PASS": "!ENV",
-    ":ROLE_ANON": "!ENV",
-    ":ROLE_USER": "!ENV",
-    ":ROLE_EXTERNAL": "!ENV",
-    ":ROLE_ZEUS": "!ENV",
+    ":ROLE_API": "scylla_api",
+    ":ROLE_API_PASS": "xyz",
+    ":ROLE_ANON": "scylla_guest",
+    ":ROLE_USER": "scylla_web",
+    ":ROLE_EXTERNAL": "scylla_ext",
+    ":ROLE_ZEUS": "scylla_zeus",
     // types
     ":VIRT_MONEY": "int",
     ":MONEY": "int",
