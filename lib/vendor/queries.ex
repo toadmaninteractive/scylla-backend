@@ -74,7 +74,7 @@ if opts[:verbose], do: IO.inspect({:run, stmt, args, opts})
         rows = if opts[:flatten], do: rows |> Stream.map(& &1 |> Map.values() |> List.first()), else: rows
         rows = if opts[:first], do: rows |> Enum.take(1) |> List.first(), else: rows
         # if opts[:verbose], do: IO.inspect({:patched, rows |> Enum.map(& &1)})
-        case opts[:into] do
+        rows = case opts[:into] do
           nil ->
             rows |> Enum.map(& &1)
           module when is_atom(module) ->
@@ -94,6 +94,15 @@ if opts[:verbose], do: IO.inspect({:run, stmt, args, opts})
             end
             rows |> Enum.map(& fun.(&1, {status, headers}))
         end
+        rows = if opts[:one] do
+          case rows do
+            [x] -> x
+            _ -> raise DataProtocol.NotFoundError, is_binary(opts[:one]) && [message: opts[:one]] || []
+          end
+        else
+          rows
+        end
+        rows
 #       rescue
 #         e in Postgrex.Error ->
 #           case e do
