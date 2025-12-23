@@ -8,6 +8,7 @@ defmodule Web.Router do
 
   plug :match
   plug :dispatch
+  plug :close_connection_on_error
 
   # --- START of routes --------------------------------------------------------
 
@@ -103,6 +104,16 @@ defmodule Web.Router do
   defp report_exception(conn) do
     conn
       |> send_resp(conn.status, "Unhandled exception occured.\nPlease do contact developers.\nRequest ID: #{Logger.metadata[:request_id]}")
+  end
+
+  defp close_connection_on_error(conn, _opts) do
+    register_before_send(conn, fn conn ->
+      if conn.status in [400, 401, 403, 404, 409, 422, 500, 502] do
+        put_resp_header(conn, "connection", "close")
+      else
+        conn
+      end
+    end)
   end
 
 end
